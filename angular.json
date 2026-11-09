@@ -56,7 +56,14 @@
                 "output": "/assets/"
               }
             ],
-            "styles": ["./node_modules/ng-zorro-antd/ng-zorro-antd.min.css", "src/styles.scss"]
+            "styles": [
+              "./node_modules/ng-zorro-antd/style/index.min.css",
+              "./node_modules/ng-zorro-antd/layout/style/index.min.css",
+              "./node_modules/ng-zorro-antd/menu/style/index.min.css",
+              "./node_modules/ng-zorro-antd/empty/style/index.min.css",
+              "./node_modules/ng-zorro-antd/tag/style/index.min.css",
+              "src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {
