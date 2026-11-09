@@ -1,41 +1,92 @@
 import { Order, OrderStatus, OrderType } from '@features/orders/models';
 
+/** Режим фильтра по дате: конкретный день или диапазон. */
+export type DateFilter =
+  | { mode: 'single'; date: string | null }
+  | { mode: 'range'; from: string | null; to: string | null };
+
 export interface OrdersFilter {
   /** Поиск по номеру заказа (подстрока, без учёта регистра). */
   number: string;
   customerIds: readonly string[];
   managerIds: readonly string[];
-  createdRange: readonly Date[] | null;
-  shippedRange: readonly Date[] | null;
+  created: DateFilter;
+  shipped: DateFilter;
   types: readonly OrderType[];
   statuses: readonly OrderStatus[];
 }
+
+export const EMPTY_DATE_FILTER: DateFilter = { mode: 'range', from: null, to: null };
 
 export const EMPTY_ORDERS_FILTER: OrdersFilter = {
   number: '',
   customerIds: [],
   managerIds: [],
-  createdRange: null,
-  shippedRange: null,
+  created: EMPTY_DATE_FILTER,
+  shipped: EMPTY_DATE_FILTER,
   types: [],
   statuses: [],
 };
 
+export function isDateFilterActive(filter: DateFilter): boolean {
+  return filter.mode === 'single'
+    ? filter.date !== null
+    : filter.from !== null || filter.to !== null;
+}
+
+/** Локальная дата → `YYYY-MM-DD` (без сдвига часового пояса). */
+export function toIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+/** `YYYY-MM-DD` → локальная дата; `null`, если строка пустая или битая. */
+export function fromIsoDate(value: string | null): Date | null {
+  if (value === null) {
+    return null;
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, year, month, day] = match;
+
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 /** Приводит дату к числу вида YYYYMMDD, чтобы сравнивать только календарные дни. */
 export function toDayKey(value: string | Date): number {
+  if (typeof value === 'string') {
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+
+    if (match) {
+      const [, year, month, day] = match;
+
+      if (year && month && day) {
+        return Number(year) * 10000 + Number(month) * 100 + Number(day);
+      }
+    }
+  }
+
   const date = value instanceof Date ? value : new Date(value);
 
   return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
 }
 
-function isWithinRange(value: string | null, range: readonly Date[] | null): boolean {
-  if (!range || range.length < 2) {
-    return true;
-  }
-
-  const [from, to] = range;
-
-  if (!from || !to) {
+function matchesDateFilter(value: string | null, filter: DateFilter): boolean {
+  if (!isDateFilterActive(filter)) {
     return true;
   }
 
@@ -45,7 +96,14 @@ function isWithinRange(value: string | null, range: readonly Date[] | null): boo
 
   const key = toDayKey(value);
 
-  return key >= toDayKey(from) && key <= toDayKey(to);
+  if (filter.mode === 'single') {
+    return filter.date !== null && key === toDayKey(filter.date);
+  }
+
+  const from = filter.from === null ? null : toDayKey(filter.from);
+  const to = filter.to === null ? null : toDayKey(filter.to);
+
+  return (from === null || key >= from) && (to === null || key <= to);
 }
 
 /**
@@ -76,10 +134,10 @@ export function filterOrders(orders: readonly Order[], filter: OrdersFilter): re
       return false;
     }
 
-    if (!isWithinRange(order.createdAt, filter.createdRange)) {
+    if (!matchesDateFilter(order.createdAt, filter.created)) {
       return false;
     }
 
-    return isWithinRange(order.shippedAt, filter.shippedRange);
+    return matchesDateFilter(order.shippedAt, filter.shipped);
   });
 }

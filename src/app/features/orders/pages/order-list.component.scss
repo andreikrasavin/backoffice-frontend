@@ -75,19 +75,7 @@
   gap: 2px;
 }
 
-.order-filter {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 260px;
-  padding: 4px;
-}
-
 .order-filter__label {
   color: var(--app-color-text-secondary);
   font-size: 12px;
-}
-
-.order-filter__control {
-  width: 100%;
 }

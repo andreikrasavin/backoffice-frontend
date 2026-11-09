@@ -31,6 +31,13 @@ export default defineConfig([
   {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
-    rules: {},
+    rules: {
+      // NgZorro-контролы рендерят <input> внутри себя: снаружи это выглядит
+      // как <label nz-radio-button> / <label nz-checkbox> без вложенного input.
+      '@angular-eslint/template/label-has-associated-control': [
+        'error',
+        { controlComponents: ['nz-radio-button', 'nz-checkbox'] },
+      ],
+    },
   },
 ]);

@@ -73,6 +73,8 @@
           <nz-filter-trigger
             [nzActive]="numberFilter().trim().length > 0"
             [nzDropdownMenu]="numberMenu"
+            [nzVisible]="openFilter() === 'number'"
+            (nzVisibleChange)="setFilterVisible('number', $event)"
           >
             <nz-icon nzType="search" />
           </nz-filter-trigger>
@@ -83,6 +85,8 @@
           <nz-filter-trigger
             [nzActive]="customerFilter().length > 0"
             [nzDropdownMenu]="customerMenu"
+            [nzVisible]="openFilter() === 'customer'"
+            (nzVisibleChange)="setFilterVisible('customer', $event)"
           >
             <nz-icon nzType="filter" nzTheme="fill" />
           </nz-filter-trigger>
@@ -90,35 +94,60 @@
 
         <th nzWidth="200px" nzCustomFilter>
           Менеджер
-          <nz-filter-trigger [nzActive]="managerFilter().length > 0" [nzDropdownMenu]="managerMenu">
+          <nz-filter-trigger
+            [nzActive]="managerFilter().length > 0"
+            [nzDropdownMenu]="managerMenu"
+            [nzVisible]="openFilter() === 'manager'"
+            (nzVisibleChange)="setFilterVisible('manager', $event)"
+          >
             <nz-icon nzType="filter" nzTheme="fill" />
           </nz-filter-trigger>
         </th>
 
         <th nzWidth="140px" [nzSortFn]="sortByCreatedAt" nzCustomFilter>
           Дата оформления
-          <nz-filter-trigger [nzActive]="createdFilter() !== null" [nzDropdownMenu]="createdMenu">
+          <nz-filter-trigger
+            [nzActive]="createdActive()"
+            [nzDropdownMenu]="createdMenu"
+            [nzVisible]="openFilter() === 'created'"
+            (nzVisibleChange)="setFilterVisible('created', $event)"
+          >
             <nz-icon nzType="filter" nzTheme="fill" />
           </nz-filter-trigger>
         </th>
 
         <th nzWidth="140px" [nzSortFn]="sortByShippedAt" nzCustomFilter>
           Дата реализации
-          <nz-filter-trigger [nzActive]="shippedFilter() !== null" [nzDropdownMenu]="shippedMenu">
+          <nz-filter-trigger
+            [nzActive]="shippedActive()"
+            [nzDropdownMenu]="shippedMenu"
+            [nzVisible]="openFilter() === 'shipped'"
+            (nzVisibleChange)="setFilterVisible('shipped', $event)"
+          >
             <nz-icon nzType="filter" nzTheme="fill" />
           </nz-filter-trigger>
         </th>
 
         <th nzWidth="130px" nzCustomFilter>
           Тип заказа
-          <nz-filter-trigger [nzActive]="typeFilter().length > 0" [nzDropdownMenu]="typeMenu">
+          <nz-filter-trigger
+            [nzActive]="typeFilter().length > 0"
+            [nzDropdownMenu]="typeMenu"
+            [nzVisible]="openFilter() === 'type'"
+            (nzVisibleChange)="setFilterVisible('type', $event)"
+          >
             <nz-icon nzType="filter" nzTheme="fill" />
           </nz-filter-trigger>
         </th>
 
         <th nzWidth="170px" nzCustomFilter>
           Статус заказа
-          <nz-filter-trigger [nzActive]="statusFilter().length > 0" [nzDropdownMenu]="statusMenu">
+          <nz-filter-trigger
+            [nzActive]="statusFilter().length > 0"
+            [nzDropdownMenu]="statusMenu"
+            [nzVisible]="openFilter() === 'status'"
+            (nzVisibleChange)="setFilterVisible('status', $event)"
+          >
             <nz-icon nzType="filter" nzTheme="fill" />
           </nz-filter-trigger>
         </th>
@@ -217,7 +246,11 @@
   </nz-table>
 
   <nz-dropdown-menu #numberMenu="nzDropdownMenu">
-    <div class="order-filter">
+    <bf-orders-filter-panel
+      [resetDisabled]="numberFilter().trim().length === 0"
+      (resetFilter)="resetNumberFilter()"
+      (apply)="applyFilter()"
+    >
       <label class="order-filter__label" for="orders-number-filter">Поиск по номеру</label>
       <input
         id="orders-number-filter"
@@ -227,102 +260,86 @@
         [ngModel]="numberFilter()"
         (ngModelChange)="setNumberFilter($event)"
       />
-    </div>
+    </bf-orders-filter-panel>
   </nz-dropdown-menu>
 
   <nz-dropdown-menu #customerMenu="nzDropdownMenu">
-    <div class="order-filter">
-      <span class="order-filter__label">Заказчики</span>
-      <nz-select
-        class="order-filter__control"
-        nzMode="multiple"
-        nzShowSearch
-        nzAllowClear
-        nzPlaceHolder="Все заказчики"
-        [ngModel]="customerFilter()"
-        (ngModelChange)="setCustomerFilter($event)"
-      >
-        @for (option of customerOptions(); track option.value) {
-          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
-        }
-      </nz-select>
-    </div>
+    <bf-orders-filter-panel
+      [resetDisabled]="customerFilter().length === 0"
+      (resetFilter)="resetCustomerFilter()"
+      (apply)="applyFilter()"
+    >
+      <bf-orders-checkbox-filter
+        [options]="customerOptions()"
+        [selected]="customerFilter()"
+        searchPlaceholder="Поиск заказчика"
+        (selectedChange)="setCustomerFilter($event)"
+      />
+    </bf-orders-filter-panel>
   </nz-dropdown-menu>
 
   <nz-dropdown-menu #managerMenu="nzDropdownMenu">
-    <div class="order-filter">
-      <span class="order-filter__label">Менеджеры</span>
-      <nz-select
-        class="order-filter__control"
-        nzMode="multiple"
-        nzShowSearch
-        nzAllowClear
-        nzPlaceHolder="Все менеджеры"
-        [ngModel]="managerFilter()"
-        (ngModelChange)="setManagerFilter($event)"
-      >
-        @for (option of managerOptions(); track option.value) {
-          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
-        }
-      </nz-select>
-    </div>
+    <bf-orders-filter-panel
+      [resetDisabled]="managerFilter().length === 0"
+      (resetFilter)="resetManagerFilter()"
+      (apply)="applyFilter()"
+    >
+      <bf-orders-checkbox-filter
+        [options]="managerOptions()"
+        [selected]="managerFilter()"
+        searchPlaceholder="Поиск менеджера"
+        (selectedChange)="setManagerFilter($event)"
+      />
+    </bf-orders-filter-panel>
   </nz-dropdown-menu>
 
   <nz-dropdown-menu #createdMenu="nzDropdownMenu">
-    <div class="order-filter">
-      <span class="order-filter__label">Дата оформления</span>
-      <nz-range-picker
-        class="order-filter__control"
-        [ngModel]="createdFilter()"
-        (ngModelChange)="setCreatedFilter($event)"
-      />
-    </div>
+    <bf-orders-filter-panel
+      [resetDisabled]="!createdActive()"
+      (resetFilter)="resetCreatedFilter()"
+      (apply)="applyFilter()"
+    >
+      <bf-orders-date-filter [value]="createdFilter()" (valueChange)="setCreatedFilter($event)" />
+    </bf-orders-filter-panel>
   </nz-dropdown-menu>
 
   <nz-dropdown-menu #shippedMenu="nzDropdownMenu">
-    <div class="order-filter">
-      <span class="order-filter__label">Дата реализации</span>
-      <nz-range-picker
-        class="order-filter__control"
-        [ngModel]="shippedFilter()"
-        (ngModelChange)="setShippedFilter($event)"
-      />
-    </div>
+    <bf-orders-filter-panel
+      [resetDisabled]="!shippedActive()"
+      (resetFilter)="resetShippedFilter()"
+      (apply)="applyFilter()"
+    >
+      <bf-orders-date-filter [value]="shippedFilter()" (valueChange)="setShippedFilter($event)" />
+    </bf-orders-filter-panel>
   </nz-dropdown-menu>
 
   <nz-dropdown-menu #typeMenu="nzDropdownMenu">
-    <div class="order-filter">
-      <span class="order-filter__label">Тип заказа</span>
-      <nz-select
-        class="order-filter__control"
-        nzMode="multiple"
-        nzAllowClear
-        nzPlaceHolder="Все типы"
-        [ngModel]="typeFilter()"
-        (ngModelChange)="setTypeFilter($event)"
-      >
-        @for (option of typeOptions; track option.value) {
-          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
-        }
-      </nz-select>
-    </div>
+    <bf-orders-filter-panel
+      [resetDisabled]="typeFilter().length === 0"
+      (resetFilter)="resetTypeFilter()"
+      (apply)="applyFilter()"
+    >
+      <bf-orders-checkbox-filter
+        [options]="typeOptions"
+        [selected]="typeFilter()"
+        searchPlaceholder="Поиск типа"
+        (selectedChange)="onTypeFilterChange($event)"
+      />
+    </bf-orders-filter-panel>
   </nz-dropdown-menu>
 
   <nz-dropdown-menu #statusMenu="nzDropdownMenu">
-    <div class="order-filter">
-      <span class="order-filter__label">Статус заказа</span>
-      <nz-select
-        class="order-filter__control"
-        nzMode="multiple"
-        nzAllowClear
-        nzPlaceHolder="Все статусы"
-        [ngModel]="statusFilter()"
-        (ngModelChange)="setStatusFilter($event)"
-      >
-        @for (option of statusOptions; track option.value) {
-          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
-        }
-      </nz-select>
-    </div>
+    <bf-orders-filter-panel
+      [resetDisabled]="statusFilter().length === 0"
+      (resetFilter)="resetStatusFilter()"
+      (apply)="applyFilter()"
+    >
+      <bf-orders-checkbox-filter
+        [options]="statusOptions"
+        [selected]="statusFilter()"
+        searchPlaceholder="Поиск статуса"
+        (selectedChange)="onStatusFilterChange($event)"
+      />
+    </bf-orders-filter-panel>
   </nz-dropdown-menu>
 </div>

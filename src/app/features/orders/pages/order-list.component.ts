@@ -11,7 +11,6 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
-import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
@@ -25,14 +24,25 @@ import {
   OrderType,
 } from '@features/orders/models';
 import {
+  DateFilter,
+  EMPTY_DATE_FILTER,
   exportOrdersToCsv,
   filterOrders,
+  isDateFilterActive,
   OrdersFilter,
   OrdersService,
 } from '@features/orders/data-access';
+import {
+  OrdersCheckboxFilterComponent,
+  OrdersDateFilterComponent,
+  OrdersFilterPanelComponent,
+} from '@features/orders/components';
 
 const PAGE_SIZE_OPTIONS: number[] = [25, 50, 100];
 const DEFAULT_PAGE_SIZE = 50;
+
+type OrderFilterKey = 'number' | 'customer' | 'manager' | 'created' | 'shipped' | 'type' | 'status';
+
 const STATUS_ORDER: readonly OrderStatus[] = [
   'new',
   'in_progress',
@@ -56,10 +66,12 @@ const STATUS_ORDER: readonly OrderStatus[] = [
     NzIconModule,
     NzInputModule,
     NzPopconfirmModule,
-    NzSelectModule,
     NzTableModule,
     NzTagModule,
     NzTooltipModule,
+    OrdersCheckboxFilterComponent,
+    OrdersDateFilterComponent,
+    OrdersFilterPanelComponent,
   ],
   templateUrl: './order-list.component.html',
   styleUrl: './order-list.component.scss',
@@ -91,10 +103,13 @@ export class OrderListComponent {
   readonly numberFilter = signal('');
   readonly customerFilter = signal<readonly string[]>([]);
   readonly managerFilter = signal<readonly string[]>([]);
-  readonly createdFilter = signal<readonly Date[] | null>(null);
-  readonly shippedFilter = signal<readonly Date[] | null>(null);
+  readonly createdFilter = signal<DateFilter>(EMPTY_DATE_FILTER);
+  readonly shippedFilter = signal<DateFilter>(EMPTY_DATE_FILTER);
   readonly typeFilter = signal<readonly OrderType[]>([]);
   readonly statusFilter = signal<readonly OrderStatus[]>([]);
+
+  /** Ключ открытого попапа фильтра — нужен, чтобы «Применить» закрывал его. */
+  readonly openFilter = signal<OrderFilterKey | null>(null);
 
   readonly selectedIds = signal<ReadonlySet<string>>(new Set<string>());
   readonly pageIndex = signal(1);
@@ -106,8 +121,8 @@ export class OrderListComponent {
     number: this.numberFilter(),
     customerIds: this.customerFilter(),
     managerIds: this.managerFilter(),
-    createdRange: this.createdFilter(),
-    shippedRange: this.shippedFilter(),
+    created: this.createdFilter(),
+    shipped: this.shippedFilter(),
     types: this.typeFilter(),
     statuses: this.statusFilter(),
   }));
@@ -136,13 +151,17 @@ export class OrderListComponent {
 
   readonly selectedCount = computed(() => this.selectedIds().size);
 
+  readonly createdActive = computed(() => isDateFilterActive(this.createdFilter()));
+
+  readonly shippedActive = computed(() => isDateFilterActive(this.shippedFilter()));
+
   readonly hasActiveFilters = computed(
     () =>
       this.numberFilter().trim().length > 0 ||
       this.customerFilter().length > 0 ||
       this.managerFilter().length > 0 ||
-      this.createdFilter() !== null ||
-      this.shippedFilter() !== null ||
+      this.createdActive() ||
+      this.shippedActive() ||
       this.typeFilter().length > 0 ||
       this.statusFilter().length > 0,
   );
@@ -212,13 +231,13 @@ export class OrderListComponent {
     this.resetPage();
   }
 
-  setCreatedFilter(range: readonly Date[] | null): void {
-    this.createdFilter.set(range);
+  setCreatedFilter(filter: DateFilter): void {
+    this.createdFilter.set(filter);
     this.resetPage();
   }
 
-  setShippedFilter(range: readonly Date[] | null): void {
-    this.shippedFilter.set(range);
+  setShippedFilter(filter: DateFilter): void {
+    this.shippedFilter.set(filter);
     this.resetPage();
   }
 
@@ -232,15 +251,65 @@ export class OrderListComponent {
     this.resetPage();
   }
 
+  /** Чекбокс-список отдаёт строки; оставляем только известные типы. */
+  onTypeFilterChange(values: readonly string[]): void {
+    this.setTypeFilter(values.filter((value): value is OrderType => value in ORDER_TYPE_LABELS));
+  }
+
+  /** Чекбокс-список отдаёт строки; оставляем только известные статусы. */
+  onStatusFilterChange(values: readonly string[]): void {
+    this.setStatusFilter(
+      values.filter((value): value is OrderStatus => value in ORDER_STATUS_LABELS),
+    );
+  }
+
   resetFilters(): void {
     this.numberFilter.set('');
     this.customerFilter.set([]);
     this.managerFilter.set([]);
-    this.createdFilter.set(null);
-    this.shippedFilter.set(null);
+    this.createdFilter.set(EMPTY_DATE_FILTER);
+    this.shippedFilter.set(EMPTY_DATE_FILTER);
     this.typeFilter.set([]);
     this.statusFilter.set([]);
+    this.openFilter.set(null);
     this.resetPage();
+  }
+
+  /** Сброс только одной колонки; попап остаётся открытым. */
+  resetNumberFilter(): void {
+    this.setNumberFilter('');
+  }
+
+  resetCustomerFilter(): void {
+    this.setCustomerFilter([]);
+  }
+
+  resetManagerFilter(): void {
+    this.setManagerFilter([]);
+  }
+
+  resetCreatedFilter(): void {
+    this.setCreatedFilter(EMPTY_DATE_FILTER);
+  }
+
+  resetShippedFilter(): void {
+    this.setShippedFilter(EMPTY_DATE_FILTER);
+  }
+
+  resetTypeFilter(): void {
+    this.setTypeFilter([]);
+  }
+
+  resetStatusFilter(): void {
+    this.setStatusFilter([]);
+  }
+
+  setFilterVisible(key: OrderFilterKey, visible: boolean): void {
+    this.openFilter.set(visible ? key : null);
+  }
+
+  applyFilter(): void {
+    this.openFilter.set(null);
   }
 
   toggleRow(order: Order, checked: boolean): void {
