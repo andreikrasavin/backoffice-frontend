@@ -22,7 +22,7 @@ src/app/
 ├── core/       # синглтоны: auth, http, api, config, models, theme
 ├── shared/     # переиспользуемое: ui, directives, pipes, utils
 ├── features/   # вертикальные срезы: dashboard, orders
-├── layout/     # app-shell, header (logo, main-nav, header-actions), footer
+├── layout/     # app-shell, header (logo, main-nav, header-actions)
 ├── app.routes.ts
 ├── app.config.ts
 └── app.ts
@@ -41,8 +41,9 @@ src/app/
 
 ## Лейаут и тема
 
-- Каркас — `layout/app-shell`: sticky-хэдер 64px, `<main>` с `.app-container`
-  (`max-width: 1440px`, `margin-inline: auto`, отступы 24px / 16px на ≤768px) и футер.
+- Каркас — `layout/app-shell`: sticky-хэдер 64px (элементы выровнены по вертикали
+  по центру), `<main>` с `.app-container` (`max-width: 1440px`, `margin-inline: auto`,
+  отступы 24px / 16px на ≤768px). Футера нет.
 - Навигация — горизонтальное `nz-menu` в хэдере; на ширине < 768px она сворачивается
   в бургер с `nz-dropdown`.
 - `shared/ui` содержит только dumb-компоненты: они получают данные через `input()`

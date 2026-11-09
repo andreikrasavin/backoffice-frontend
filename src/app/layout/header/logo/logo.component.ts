@@ -14,11 +14,13 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
   styles: [
     `
       :host {
-        display: block;
+        display: flex;
+        align-items: center;
+        height: 100%;
       }
 
       .logo {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: var(--app-spacing-sm);
         color: var(--app-color-text);

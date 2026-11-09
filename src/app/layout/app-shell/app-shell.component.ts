@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NzContentComponent, NzHeaderComponent, NzLayoutComponent } from 'ng-zorro-antd/layout';
-import { FooterComponent } from '../footer.component';
 import { HeaderComponent } from '../header/header.component';
 
 @Component({
@@ -12,7 +11,6 @@ import { HeaderComponent } from '../header/header.component';
     NzHeaderComponent,
     NzContentComponent,
     HeaderComponent,
-    FooterComponent,
   ],
   template: `
     <nz-layout class="app-shell">
@@ -24,7 +22,6 @@ import { HeaderComponent } from '../header/header.component';
           <router-outlet />
         </main>
       </nz-content>
-      <bf-footer class="app-shell__footer" />
     </nz-layout>
   `,
   styles: [
@@ -43,14 +40,23 @@ import { HeaderComponent } from '../header/header.component';
         position: sticky;
         top: 0;
         z-index: 20;
+        display: flex;
+        align-items: center;
         height: 64px;
         padding: 0;
+        line-height: normal;
         background: var(--app-color-surface);
         border-bottom: 1px solid var(--app-color-border);
       }
 
       .app-shell__content {
+        flex: 1;
         padding: 24px 0;
+      }
+
+      bf-header {
+        flex: 1;
+        min-width: 0;
       }
     `,
   ],

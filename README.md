@@ -35,7 +35,7 @@ src/
 │   ├── core/       # синглтоны: api, auth, config, http, models, theme
 │   ├── shared/     # ui, directives, pipes, utils — без зависимостей от фич
 │   ├── features/   # вертикальные срезы: dashboard, orders
-│   ├── layout/     # app-shell, header (logo, main-nav, header-actions), footer
+│   ├── layout/     # app-shell, header (logo, main-nav, header-actions)
 │   ├── app.config.ts
 │   ├── app.routes.ts
 │   └── app.ts
