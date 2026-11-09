@@ -7,6 +7,10 @@ import { NzFooterComponent } from 'ng-zorro-antd/layout';
   template: `<nz-footer class="shell-footer">Backoffice © {{ year }}</nz-footer>`,
   styles: [
     `
+      :host {
+        display: block;
+      }
+
       .shell-footer {
         text-align: center;
         padding: 16px 24px;

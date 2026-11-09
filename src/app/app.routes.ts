@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { ShellComponent } from '@layout/index';
+import { AppShellComponent } from '@layout/index';
 
 export const routes: Routes = [
   {
     path: '',
-    component: ShellComponent,
+    component: AppShellComponent,
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
