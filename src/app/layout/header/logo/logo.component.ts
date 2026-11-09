@@ -45,7 +45,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
         font-size: 24px;
       }
 
-      @media (max-width: 575px) {
+      @media (max-width: 767px) {
         .logo__text {
           display: none;
         }

@@ -1,5 +1,6 @@
 import { Injectable, Provider, computed, inject, signal } from '@angular/core';
 import { TokenStorage } from './token-storage';
+import { UserService } from './user.service';
 
 @Injectable()
 export class AuthService {
@@ -20,5 +21,5 @@ export class AuthService {
 }
 
 export function provideAuth(): Provider[] {
-  return [AuthService, TokenStorage];
+  return [AuthService, TokenStorage, UserService];
 }

@@ -135,6 +135,9 @@ interface NavItem {
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown.escape)': 'closeMobileMenu()',
+  },
 })
 export class MainNavComponent {
   protected readonly items: readonly NavItem[] = [
@@ -143,4 +146,10 @@ export class MainNavComponent {
   ];
 
   protected readonly mobileOpen = signal(false);
+
+  protected closeMobileMenu(): void {
+    if (this.mobileOpen()) {
+      this.mobileOpen.set(false);
+    }
+  }
 }
