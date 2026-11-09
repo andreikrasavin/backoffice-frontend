@@ -8,14 +8,29 @@
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <script>
-      // Applies the persisted theme before first paint to avoid a light-theme flash.
+      // Marks the document as dark before the first paint to avoid a light flash.
+      (function () {
+        try {
+          if (localStorage.getItem('bf-theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.style.colorScheme = 'dark';
+          }
+        } catch (error) {
+          // Storage may be unavailable (private mode); the light theme is used.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <bf-root></bf-root>
+    <script>
+      // Loaded at the end of the body so the dark bundle overrides the light
+      // NgZorro component styles instead of being overridden by them.
       (function () {
         try {
           if (localStorage.getItem('bf-theme') !== 'dark') {
             return;
           }
-          document.documentElement.setAttribute('data-theme', 'dark');
-          document.documentElement.style.colorScheme = 'dark';
           var link = document.createElement('link');
           link.id = 'bf-theme-dark';
           link.rel = 'stylesheet';
@@ -29,8 +44,5 @@
         }
       })();
     </script>
-  </head>
-  <body>
-    <bf-root></bf-root>
   </body>
 </html>
