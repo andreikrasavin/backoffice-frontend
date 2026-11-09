@@ -73,6 +73,15 @@
               "./node_modules/ng-zorro-antd/avatar/style/index.min.css",
               "./node_modules/ng-zorro-antd/icon/style/index.min.css",
               "./node_modules/ng-zorro-antd/tooltip/style/index.min.css",
+              "./node_modules/ng-zorro-antd/table/style/index.min.css",
+              "./node_modules/ng-zorro-antd/checkbox/style/index.min.css",
+              "./node_modules/ng-zorro-antd/select/style/index.min.css",
+              "./node_modules/ng-zorro-antd/date-picker/style/index.min.css",
+              "./node_modules/ng-zorro-antd/input/style/index.min.css",
+              "./node_modules/ng-zorro-antd/pagination/style/index.min.css",
+              "./node_modules/ng-zorro-antd/message/style/index.min.css",
+              "./node_modules/ng-zorro-antd/modal/style/index.min.css",
+              "./node_modules/ng-zorro-antd/popconfirm/style/index.min.css",
               "src/styles/index.scss"
             ]
           },
@@ -121,10 +130,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }

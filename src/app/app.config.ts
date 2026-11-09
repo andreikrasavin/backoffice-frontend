@@ -6,14 +6,23 @@ import { ru_RU, provideNzI18n } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import ru from '@angular/common/locales/ru';
 import { provideNzNativeDateAdapter } from 'ng-zorro-antd/core/time';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import {
   AppstoreOutline,
   BellOutline,
   DashboardOutline,
+  DeleteOutline,
+  DownloadOutline,
+  EditOutline,
+  FilterFill,
+  FilterOutline,
   LogoutOutline,
   MenuOutline,
   MoonOutline,
+  PlusOutline,
+  ReloadOutline,
+  SearchOutline,
   SettingOutline,
   ShoppingCartOutline,
   SunOutline,
@@ -34,13 +43,22 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideNzI18n(ru_RU),
     provideNzNativeDateAdapter(),
+    NzModalService,
     provideNzIcons([
       AppstoreOutline,
       BellOutline,
       DashboardOutline,
+      DeleteOutline,
+      DownloadOutline,
+      EditOutline,
+      FilterFill,
+      FilterOutline,
       LogoutOutline,
       MenuOutline,
       MoonOutline,
+      PlusOutline,
+      ReloadOutline,
+      SearchOutline,
       SettingOutline,
       ShoppingCartOutline,
       SunOutline,

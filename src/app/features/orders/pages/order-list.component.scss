@@ -1,0 +1,93 @@
+:host {
+  display: block;
+}
+
+.orders-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orders-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.orders-page__title {
+  margin: 0;
+  color: var(--app-color-text);
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.orders-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.orders-page__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
+}
+
+.orders-page__bulk-count {
+  font-weight: 600;
+}
+
+.orders-page__bulk-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.orders-table__link {
+  font-weight: 500;
+}
+
+.orders-table__customer {
+  color: var(--app-color-text);
+}
+
+.orders-table__muted {
+  margin-top: 2px;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.orders-table__manager {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.orders-table__actions {
+  display: flex;
+  gap: 2px;
+}
+
+.order-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 260px;
+  padding: 4px;
+}
+
+.order-filter__label {
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.order-filter__control {
+  width: 100%;
+}

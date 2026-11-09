@@ -1,0 +1,328 @@
+<div class="orders-page">
+  <div class="orders-page__header">
+    <h1 class="orders-page__title">Заказы</h1>
+
+    <div class="orders-page__actions">
+      @if (hasActiveFilters()) {
+        <button nz-button type="button" (click)="resetFilters()">
+          <nz-icon nzType="reload" />
+          Сбросить фильтры
+        </button>
+      }
+
+      <button nz-button nzType="primary" type="button" (click)="createOrder()">
+        <nz-icon nzType="plus" />
+        Создать заказ
+      </button>
+
+      <button nz-button type="button" (click)="exportFiltered()">
+        <nz-icon nzType="download" />
+        Экспорт
+      </button>
+    </div>
+  </div>
+
+  @if (selectedCount() > 0) {
+    <div class="orders-page__bulk" role="status" aria-live="polite">
+      <span class="orders-page__bulk-count">Выбрано: {{ selectedCount() }}</span>
+
+      <div class="orders-page__bulk-actions">
+        <button nz-button type="button" (click)="exportSelected()">
+          <nz-icon nzType="download" />
+          Экспортировать выбранные
+        </button>
+
+        <button nz-button nzDanger type="button" (click)="deleteSelected()">
+          <nz-icon nzType="delete" />
+          Удалить выбранные
+        </button>
+      </div>
+    </div>
+  }
+
+  <nz-table
+    #table="nzTable"
+    [nzData]="filteredOrders()"
+    [nzFrontPagination]="true"
+    [nzPageIndex]="pageIndex()"
+    [nzPageSize]="pageSize()"
+    [nzPageSizeOptions]="pageSizeOptions"
+    [nzShowSizeChanger]="true"
+    [nzShowTotal]="totalTemplate"
+    [nzScroll]="{ x: '1340px' }"
+    (nzPageIndexChange)="onPageIndexChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  >
+    <ng-template #totalTemplate let-total let-range="range">
+      {{ range[0] }}–{{ range[1] }} из {{ total }}
+    </ng-template>
+
+    <thead>
+      <tr>
+        <th
+          nzWidth="48px"
+          nzShowCheckbox
+          [nzChecked]="pageAllSelected()"
+          [nzIndeterminate]="pagePartiallySelected()"
+          (nzCheckedChange)="togglePage($event)"
+        ></th>
+
+        <th nzWidth="140px" [nzSortFn]="sortByNumber" nzCustomFilter>
+          Номер заказа
+          <nz-filter-trigger
+            [nzActive]="numberFilter().trim().length > 0"
+            [nzDropdownMenu]="numberMenu"
+          >
+            <nz-icon nzType="search" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="240px" nzCustomFilter>
+          Заказчик
+          <nz-filter-trigger
+            [nzActive]="customerFilter().length > 0"
+            [nzDropdownMenu]="customerMenu"
+          >
+            <nz-icon nzType="filter" nzTheme="fill" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="200px" nzCustomFilter>
+          Менеджер
+          <nz-filter-trigger [nzActive]="managerFilter().length > 0" [nzDropdownMenu]="managerMenu">
+            <nz-icon nzType="filter" nzTheme="fill" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="140px" [nzSortFn]="sortByCreatedAt" nzCustomFilter>
+          Дата оформления
+          <nz-filter-trigger [nzActive]="createdFilter() !== null" [nzDropdownMenu]="createdMenu">
+            <nz-icon nzType="filter" nzTheme="fill" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="140px" [nzSortFn]="sortByShippedAt" nzCustomFilter>
+          Дата реализации
+          <nz-filter-trigger [nzActive]="shippedFilter() !== null" [nzDropdownMenu]="shippedMenu">
+            <nz-icon nzType="filter" nzTheme="fill" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="130px" nzCustomFilter>
+          Тип заказа
+          <nz-filter-trigger [nzActive]="typeFilter().length > 0" [nzDropdownMenu]="typeMenu">
+            <nz-icon nzType="filter" nzTheme="fill" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="170px" nzCustomFilter>
+          Статус заказа
+          <nz-filter-trigger [nzActive]="statusFilter().length > 0" [nzDropdownMenu]="statusMenu">
+            <nz-icon nzType="filter" nzTheme="fill" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="130px">Действия</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (order of currentPage(); track order.id) {
+        <tr>
+          <td
+            nzShowCheckbox
+            [nzChecked]="isSelected(order.id)"
+            (nzCheckedChange)="toggleRow(order, $event)"
+          ></td>
+
+          <td>
+            <a class="orders-table__link" [routerLink]="['/orders', order.id]">{{
+              order.number
+            }}</a>
+          </td>
+
+          <td>
+            <div class="orders-table__customer">{{ order.customer.name }}</div>
+            <div class="orders-table__muted">{{ order.customer.address }}</div>
+          </td>
+
+          <td>
+            <div class="orders-table__manager">
+              <nz-avatar nzSize="small" [nzText]="initials(order.manager.fullName)"></nz-avatar>
+              <span>{{ order.manager.fullName }}</span>
+            </div>
+          </td>
+
+          <td>{{ formatDay(order.createdAt) }}</td>
+          <td>{{ formatDay(order.shippedAt) }}</td>
+
+          <td>
+            <nz-tag [nzColor]="typeColors[order.type]">{{ typeLabels[order.type] }}</nz-tag>
+          </td>
+
+          <td>
+            <nz-tag [nzColor]="statusColors[order.status]">{{ statusLabels[order.status] }}</nz-tag>
+          </td>
+
+          <td>
+            <div class="orders-table__actions">
+              <button
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Редактировать"
+                [attr.aria-label]="'Редактировать заказ ' + order.number"
+                (click)="editOrder(order)"
+              >
+                <nz-icon nzType="edit" />
+              </button>
+
+              <button
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                type="button"
+                nz-tooltip
+                nzTooltipTitle="Экспортировать"
+                [attr.aria-label]="'Экспортировать заказ ' + order.number"
+                (click)="exportOrder(order)"
+              >
+                <nz-icon nzType="download" />
+              </button>
+
+              <button
+                nz-button
+                nzType="text"
+                nzShape="circle"
+                nzDanger
+                type="button"
+                nz-popconfirm
+                [nzPopconfirmTitle]="'Удалить заказ ' + order.number + '?'"
+                nzOkText="Удалить"
+                nzCancelText="Отмена"
+                nzOkDanger
+                [attr.aria-label]="'Удалить заказ ' + order.number"
+                (nzOnConfirm)="deleteOrder(order)"
+              >
+                <nz-icon nzType="delete" />
+              </button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+
+  <nz-dropdown-menu #numberMenu="nzDropdownMenu">
+    <div class="order-filter">
+      <label class="order-filter__label" for="orders-number-filter">Поиск по номеру</label>
+      <input
+        id="orders-number-filter"
+        nz-input
+        type="text"
+        placeholder="Например, 2025-00042"
+        [ngModel]="numberFilter()"
+        (ngModelChange)="setNumberFilter($event)"
+      />
+    </div>
+  </nz-dropdown-menu>
+
+  <nz-dropdown-menu #customerMenu="nzDropdownMenu">
+    <div class="order-filter">
+      <span class="order-filter__label">Заказчики</span>
+      <nz-select
+        class="order-filter__control"
+        nzMode="multiple"
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Все заказчики"
+        [ngModel]="customerFilter()"
+        (ngModelChange)="setCustomerFilter($event)"
+      >
+        @for (option of customerOptions(); track option.value) {
+          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
+        }
+      </nz-select>
+    </div>
+  </nz-dropdown-menu>
+
+  <nz-dropdown-menu #managerMenu="nzDropdownMenu">
+    <div class="order-filter">
+      <span class="order-filter__label">Менеджеры</span>
+      <nz-select
+        class="order-filter__control"
+        nzMode="multiple"
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="Все менеджеры"
+        [ngModel]="managerFilter()"
+        (ngModelChange)="setManagerFilter($event)"
+      >
+        @for (option of managerOptions(); track option.value) {
+          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
+        }
+      </nz-select>
+    </div>
+  </nz-dropdown-menu>
+
+  <nz-dropdown-menu #createdMenu="nzDropdownMenu">
+    <div class="order-filter">
+      <span class="order-filter__label">Дата оформления</span>
+      <nz-range-picker
+        class="order-filter__control"
+        [ngModel]="createdFilter()"
+        (ngModelChange)="setCreatedFilter($event)"
+      />
+    </div>
+  </nz-dropdown-menu>
+
+  <nz-dropdown-menu #shippedMenu="nzDropdownMenu">
+    <div class="order-filter">
+      <span class="order-filter__label">Дата реализации</span>
+      <nz-range-picker
+        class="order-filter__control"
+        [ngModel]="shippedFilter()"
+        (ngModelChange)="setShippedFilter($event)"
+      />
+    </div>
+  </nz-dropdown-menu>
+
+  <nz-dropdown-menu #typeMenu="nzDropdownMenu">
+    <div class="order-filter">
+      <span class="order-filter__label">Тип заказа</span>
+      <nz-select
+        class="order-filter__control"
+        nzMode="multiple"
+        nzAllowClear
+        nzPlaceHolder="Все типы"
+        [ngModel]="typeFilter()"
+        (ngModelChange)="setTypeFilter($event)"
+      >
+        @for (option of typeOptions; track option.value) {
+          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
+        }
+      </nz-select>
+    </div>
+  </nz-dropdown-menu>
+
+  <nz-dropdown-menu #statusMenu="nzDropdownMenu">
+    <div class="order-filter">
+      <span class="order-filter__label">Статус заказа</span>
+      <nz-select
+        class="order-filter__control"
+        nzMode="multiple"
+        nzAllowClear
+        nzPlaceHolder="Все статусы"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="setStatusFilter($event)"
+      >
+        @for (option of statusOptions; track option.value) {
+          <nz-option [nzValue]="option.value" [nzLabel]="option.label" />
+        }
+      </nz-select>
+    </div>
+  </nz-dropdown-menu>
+</div>
