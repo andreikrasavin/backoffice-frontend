@@ -20,16 +20,6 @@ export interface FilterOption {
   imports: [FormsModule, NzCheckboxModule, NzEmptyModule, NzIconModule, NzInputModule, NzTagModule],
   template: `
     <div class="checkbox-filter">
-      @if (selectedOptions().length > 0) {
-        <div class="checkbox-filter__chips">
-          @for (option of selectedOptions(); track option.value) {
-            <nz-tag nzMode="closeable" (nzOnClose)="remove(option.value)">
-              {{ option.label }}
-            </nz-tag>
-          }
-        </div>
-      }
-
       <div class="checkbox-filter__search">
         <nz-icon nzType="search" />
         <input
@@ -41,26 +31,40 @@ export interface FilterOption {
         />
       </div>
 
-      <div
+      @if (selectedOptions().length > 0) {
+        <div class="checkbox-filter__chips">
+          @for (option of selectedOptions(); track option.value) {
+            <nz-tag nzMode="closeable" (nzOnClose)="remove(option.value)">
+              {{ option.label }}
+            </nz-tag>
+          }
+        </div>
+      }
+
+      <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+      <label
         class="checkbox-filter__all"
         nz-checkbox
-        [ngModel]="allVisibleSelected()"
+        [nzChecked]="allVisibleSelected()"
         [nzIndeterminate]="someVisibleSelected()"
-        (ngModelChange)="toggleAll($event)"
+        (nzCheckedChange)="toggleAll($event)"
       >
         Выбрать все
-      </div>
+      </label>
 
       <div class="checkbox-filter__list">
         @for (option of filteredOptions(); track option.value) {
-          <div
+          <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+          <label
             class="checkbox-filter__option"
             nz-checkbox
-            [ngModel]="isSelected(option.value)"
-            (ngModelChange)="toggle(option.value, $event)"
+            [nzChecked]="isSelected(option.value)"
+            (nzCheckedChange)="toggle(option.value, $event)"
           >
-            {{ option.label }}
-          </div>
+            <span class="checkbox-filter__option-label" [title]="option.label">
+              {{ option.label }}
+            </span>
+          </label>
         } @empty {
           <nz-empty nzNotFoundContent="Ничего не найдено" />
         }
@@ -82,13 +86,13 @@ export interface FilterOption {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      max-height: 72px;
-      overflow-y: auto;
-      scrollbar-color: var(--app-color-border) transparent;
+      max-width: 100%;
     }
 
     .checkbox-filter__chips nz-tag {
+      max-width: 100%;
       margin: 0;
+      overflow: hidden;
     }
 
     .checkbox-filter__search {
@@ -109,6 +113,8 @@ export interface FilterOption {
     }
 
     .checkbox-filter__all {
+      display: flex;
+      align-items: center;
       padding-bottom: 4px;
       border-bottom: 1px solid var(--app-color-border);
     }
@@ -123,6 +129,18 @@ export interface FilterOption {
     }
 
     .checkbox-filter__option {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .checkbox-filter__option-label {
+      display: block;
+      width: 100%;
+      min-width: 0;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
