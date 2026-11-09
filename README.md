@@ -32,10 +32,10 @@ npm run format:check # проверка форматирования
 ```
 src/
 ├── app/
-│   ├── core/       # синглтоны: api, auth, config, http, models
+│   ├── core/       # синглтоны: api, auth, config, http, models, theme
 │   ├── shared/     # ui, directives, pipes, utils — без зависимостей от фич
 │   ├── features/   # вертикальные срезы: dashboard, orders
-│   ├── layout/     # shell, header, sidebar, footer
+│   ├── layout/     # app-shell, header (logo, main-nav, header-actions), footer
 │   ├── app.config.ts
 │   ├── app.routes.ts
 │   └── app.ts
@@ -57,6 +57,9 @@ src/
 
 ## Статус
 
-- Реализованы shell, дашборд и список заказов (данные — заглушки).
+- Реализованы app shell с адаптивным хэдером, переключение светлой/тёмной темы (NgZorro),
+  дашборд и список заказов (данные — заглушки).
+- Хэдер: логотип, навигация «Дашборд»/«Заказы», уведомления, переключатель темы и меню
+  пользователя. На экранах < 768px навигация сворачивается в бургер.
 - Разделы клиентов, продуктов и производства пока не реализованы.
 - Авторизация подготовлена (`AuthService`, `authGuard`), но не подключена.

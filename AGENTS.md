@@ -19,10 +19,10 @@ npm run format:check
 
 ```
 src/app/
-├── core/       # синглтоны: auth, http, api, config, models
+├── core/       # синглтоны: auth, http, api, config, models, theme
 ├── shared/     # переиспользуемое: ui, directives, pipes, utils
 ├── features/   # вертикальные срезы: dashboard, orders
-├── layout/     # shell, header, sidebar, footer
+├── layout/     # app-shell, header (logo, main-nav, header-actions), footer
 ├── app.routes.ts
 ├── app.config.ts
 └── app.ts
@@ -38,6 +38,22 @@ src/app/
   `@core/*`, `@shared/*`, `@features/*`, `@layout/*`, `@env/*`.
   Импорты в обход барелей (`@core/config/app-config`) запрещены.
 - Фичевые сервисы скоупятся через `providers` в конфиге маршрута фичи.
+
+## Лейаут и тема
+
+- Каркас — `layout/app-shell`: sticky-хэдер 64px, `<main>` с `.app-container`
+  (`max-width: 1440px`, `margin-inline: auto`, отступы 24px / 16px на ≤768px) и футер.
+- Навигация — горизонтальное `nz-menu` в хэдере; на ширине < 768px она сворачивается
+  в бургер с `nz-dropdown`.
+- `shared/ui` содержит только dumb-компоненты: они получают данные через `input()`
+  и сообщают о действиях через `output()`. Сервисы (`ThemeService`, `UserService`,
+  `AuthService`) инжектятся в `layout/header/header-actions`, чтобы `shared` не зависел
+  от `core`.
+- Тема — `core/theme/theme.service.ts`: сигнал `light | dark`, `localStorage` (`bf-theme`),
+  атрибут `data-theme` на `<html>` и подключение `ng-zorro-antd.dark.min.css` из ассетов.
+  Тема применяется до первого рендера inline-скриптом в `index.html`.
+- NgZorro-стили подключаются по компонентам в `angular.json`; тёмная тема — отдельный
+  CSS-файл, который копируется в `/assets/ng-zorro-antd/`.
 
 ## Именование
 
@@ -75,7 +91,10 @@ Angular Commit Conventions, сообщение на английском, заг
 
 ## Известные ограничения
 
-- Маршруты `/customers`, `/products`, `/production` ещё не реализованы; пункты меню
-  ведут на wildcard-редирект.
+- Разделы клиентов, продуктов и производства ещё не реализованы; в навигации только
+  «Дашборд» и «Заказы».
 - `authGuard` и `AuthService` готовы, но guard не подключён: страницы `/login` нет.
+- `UserService` — заглушка с `null`: аватар показывает гостя, пункты «Профиль»
+  и «Настройки» пока ничего не открывают.
+- Уведомления статичны («Нет новых уведомлений»), счётчик непрочитанных не подключён.
 - `OrdersService`/`DashboardService` — заглушки без HTTP-запросов.
