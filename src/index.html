@@ -5,7 +5,30 @@
     <title>Backoffice — мебельная фабрика</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      // Applies the persisted theme before first paint to avoid a light-theme flash.
+      (function () {
+        try {
+          if (localStorage.getItem('bf-theme') !== 'dark') {
+            return;
+          }
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.style.colorScheme = 'dark';
+          var link = document.createElement('link');
+          link.id = 'bf-theme-dark';
+          link.rel = 'stylesheet';
+          link.href = new URL(
+            'assets/ng-zorro-antd/ng-zorro-antd.dark.min.css',
+            document.baseURI,
+          ).href;
+          document.head.appendChild(link);
+        } catch (error) {
+          // Storage or DOM may be unavailable; fall back to the light theme.
+        }
+      })();
+    </script>
   </head>
   <body>
     <bf-root></bf-root>

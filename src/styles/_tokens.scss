@@ -12,3 +12,12 @@
   --app-spacing-md: 16px;
   --app-spacing-lg: 24px;
 }
+
+:root[data-theme='dark'] {
+  --app-color-primary: #1668dc;
+  --app-color-bg: #141414;
+  --app-color-surface: #1f1f1f;
+  --app-color-border: #303030;
+  --app-color-text: rgba(255, 255, 255, 0.85);
+  --app-color-text-secondary: rgba(255, 255, 255, 0.45);
+}
