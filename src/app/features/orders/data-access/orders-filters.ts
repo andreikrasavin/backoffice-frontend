@@ -1,22 +1,23 @@
 import { Order, OrderStatus, OrderType } from '@features/orders/models';
 
-/** Режим фильтра по дате: конкретный день или диапазон. */
-export type DateFilter =
-  | { mode: 'single'; date: string | null }
-  | { mode: 'range'; from: string | null; to: string | null };
+/** Открытый диапазон дат: обе границы необязательны. */
+export interface DateRangeFilter {
+  from: string | null;
+  to: string | null;
+}
 
 export interface OrdersFilter {
   /** Поиск по номеру заказа (подстрока, без учёта регистра). */
   number: string;
   customerIds: readonly string[];
   managerIds: readonly string[];
-  created: DateFilter;
-  shipped: DateFilter;
+  created: DateRangeFilter;
+  shipped: DateRangeFilter;
   types: readonly OrderType[];
   statuses: readonly OrderStatus[];
 }
 
-export const EMPTY_DATE_FILTER: DateFilter = { mode: 'range', from: null, to: null };
+export const EMPTY_DATE_FILTER: DateRangeFilter = { from: null, to: null };
 
 export const EMPTY_ORDERS_FILTER: OrdersFilter = {
   number: '',
@@ -28,10 +29,8 @@ export const EMPTY_ORDERS_FILTER: OrdersFilter = {
   statuses: [],
 };
 
-export function isDateFilterActive(filter: DateFilter): boolean {
-  return filter.mode === 'single'
-    ? filter.date !== null
-    : filter.from !== null || filter.to !== null;
+export function isDateFilterActive(filter: DateRangeFilter): boolean {
+  return filter.from !== null || filter.to !== null;
 }
 
 /** Локальная дата → `YYYY-MM-DD` (без сдвига часового пояса). */
@@ -85,7 +84,11 @@ export function toDayKey(value: string | Date): number {
   return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
 }
 
-function matchesDateFilter(value: string | null, filter: DateFilter): boolean {
+function matchesDateFilter(
+  value: string | null,
+  filter: DateRangeFilter,
+  todayKey: number,
+): boolean {
   if (!isDateFilterActive(filter)) {
     return true;
   }
@@ -95,15 +98,13 @@ function matchesDateFilter(value: string | null, filter: DateFilter): boolean {
   }
 
   const key = toDayKey(value);
-
-  if (filter.mode === 'single') {
-    return filter.date !== null && key === toDayKey(filter.date);
-  }
-
   const from = filter.from === null ? null : toDayKey(filter.from);
   const to = filter.to === null ? null : toDayKey(filter.to);
 
-  return (from === null || key >= from) && (to === null || key <= to);
+  // Открытая верхняя граница для «с даты» не уводит фильтр в будущее.
+  const upperBound = to ?? todayKey;
+
+  return (from === null || key >= from) && key <= upperBound;
 }
 
 /**
@@ -112,6 +113,7 @@ function matchesDateFilter(value: string | null, filter: DateFilter): boolean {
  */
 export function filterOrders(orders: readonly Order[], filter: OrdersFilter): readonly Order[] {
   const number = filter.number.trim().toLowerCase();
+  const todayKey = toDayKey(new Date());
 
   return orders.filter((order) => {
     if (number && !order.number.toLowerCase().includes(number)) {
@@ -134,10 +136,10 @@ export function filterOrders(orders: readonly Order[], filter: OrdersFilter): re
       return false;
     }
 
-    if (!matchesDateFilter(order.createdAt, filter.created)) {
+    if (!matchesDateFilter(order.createdAt, filter.created, todayKey)) {
       return false;
     }
 
-    return matchesDateFilter(order.shippedAt, filter.shipped);
+    return matchesDateFilter(order.shippedAt, filter.shipped, todayKey);
   });
 }

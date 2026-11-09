@@ -24,7 +24,7 @@ import {
   OrderType,
 } from '@features/orders/models';
 import {
-  DateFilter,
+  DateRangeFilter,
   EMPTY_DATE_FILTER,
   exportOrdersToCsv,
   filterOrders,
@@ -103,8 +103,8 @@ export class OrderListComponent {
   readonly numberFilter = signal('');
   readonly customerFilter = signal<readonly string[]>([]);
   readonly managerFilter = signal<readonly string[]>([]);
-  readonly createdFilter = signal<DateFilter>(EMPTY_DATE_FILTER);
-  readonly shippedFilter = signal<DateFilter>(EMPTY_DATE_FILTER);
+  readonly createdFilter = signal<DateRangeFilter>(EMPTY_DATE_FILTER);
+  readonly shippedFilter = signal<DateRangeFilter>(EMPTY_DATE_FILTER);
   readonly typeFilter = signal<readonly OrderType[]>([]);
   readonly statusFilter = signal<readonly OrderStatus[]>([]);
 
@@ -231,12 +231,12 @@ export class OrderListComponent {
     this.resetPage();
   }
 
-  setCreatedFilter(filter: DateFilter): void {
+  setCreatedFilter(filter: DateRangeFilter): void {
     this.createdFilter.set(filter);
     this.resetPage();
   }
 
-  setShippedFilter(filter: DateFilter): void {
+  setShippedFilter(filter: DateRangeFilter): void {
     this.shippedFilter.set(filter);
     this.resetPage();
   }

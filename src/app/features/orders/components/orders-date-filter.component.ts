@@ -1,45 +1,49 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
-import { NzRadioModule } from 'ng-zorro-antd/radio';
-import { DateFilter, fromIsoDate, toIsoDate } from '@features/orders/data-access';
+import { DateRangeFilter, fromIsoDate, toIsoDate } from '@features/orders/data-access';
+
+/** `YYYY-MM-DD` → `dd.MM.yyyy`; подсказка всегда показывает локальную дату. */
+function formatIsoDate(value: string): string {
+  const [year, month, day] = value.split('-');
+
+  return year && month && day ? `${day}.${month}.${year}` : value;
+}
 
 /**
- * Фильтр по дате: точный день или диапазон. Модель хранит только даты
- * в формате `YYYY-MM-DD`, поэтому часовой пояс не влияет на результат.
+ * Фильтр по диапазону дат: обе границы необязательны, пустой фильтр означает
+ * «за всё время». Модель хранит только даты `YYYY-MM-DD`, без времени и TZ.
  */
 @Component({
   selector: 'bf-orders-date-filter',
-  imports: [FormsModule, NzDatePickerModule, NzRadioModule],
+  imports: [FormsModule, NzDatePickerModule],
   template: `
     <div class="date-filter">
-      <nz-radio-group
-        nzSize="small"
-        [ngModel]="value().mode"
-        (ngModelChange)="onModeChange($event)"
-      >
-        <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
-        <label nz-radio-button nzValue="single">Одна дата</label>
-        <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
-        <label nz-radio-button nzValue="range">Диапазон</label>
-      </nz-radio-group>
-
-      @if (value().mode === 'single') {
+      <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+      <label class="date-filter__field">
+        <span class="date-filter__label">С даты</span>
         <nz-date-picker
-          class="date-filter__control"
           nzFormat="dd.MM.yyyy"
-          nzPlaceHolder="Выберите дату"
-          [ngModel]="singleDate()"
-          (ngModelChange)="onSingleChange($event)"
+          nzPlaceHolder="Любая дата"
+          [ngModel]="fromDate()"
+          (ngModelChange)="onFromChange($event)"
         />
-      } @else {
-        <nz-range-picker
-          class="date-filter__control"
+      </label>
+
+      <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+      <label class="date-filter__field">
+        <span class="date-filter__label">По дату</span>
+        <nz-date-picker
           nzFormat="dd.MM.yyyy"
-          [ngModel]="rangeDates()"
-          (ngModelChange)="onRangeChange($event)"
+          nzPlaceHolder="Любая дата"
+          [ngModel]="toDate()"
+          (ngModelChange)="onToChange($event)"
         />
-      }
+      </label>
+
+      <p class="date-filter__hint" [class.date-filter__hint--error]="rangeInvalid()" role="status">
+        {{ hint() }}
+      </p>
     </div>
   `,
   styles: `
@@ -50,60 +54,78 @@ import { DateFilter, fromIsoDate, toIsoDate } from '@features/orders/data-access
     .date-filter {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
     }
 
-    .date-filter__control {
+    .date-filter__field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .date-filter__label {
+      color: var(--app-color-text-secondary);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .date-filter__field nz-date-picker {
       width: 100%;
+    }
+
+    .date-filter__hint {
+      margin: 0;
+      color: var(--app-color-text-secondary);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .date-filter__hint--error {
+      color: #ff4d4f;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrdersDateFilterComponent {
-  readonly value = input.required<DateFilter>();
-  readonly valueChange = output<DateFilter>();
+  readonly value = input.required<DateRangeFilter>();
+  readonly valueChange = output<DateRangeFilter>();
 
-  readonly singleDate = computed(() => {
-    const value = this.value();
+  readonly fromDate = computed(() => fromIsoDate(this.value().from));
+  readonly toDate = computed(() => fromIsoDate(this.value().to));
 
-    return value.mode === 'single' ? fromIsoDate(value.date) : null;
+  readonly rangeInvalid = computed(() => {
+    const { from, to } = this.value();
+
+    return from !== null && to !== null && from > to;
   });
 
-  readonly rangeDates = computed<Date[] | null>(() => {
-    const value = this.value();
+  readonly hint = computed(() => {
+    const { from, to } = this.value();
 
-    if (value.mode !== 'range') {
-      return null;
+    if (this.rangeInvalid()) {
+      return 'Дата «с» позже даты «по»';
     }
 
-    const from = fromIsoDate(value.from);
-    const to = fromIsoDate(value.to);
+    if (from !== null && to !== null) {
+      return `С ${formatIsoDate(from)} по ${formatIsoDate(to)}`;
+    }
 
-    return from !== null && to !== null ? [from, to] : null;
+    if (from !== null) {
+      return `С ${formatIsoDate(from)} по сегодня`;
+    }
+
+    if (to !== null) {
+      return `До ${formatIsoDate(to)}`;
+    }
+
+    return 'Все заказы за всё время';
   });
 
-  onModeChange(mode: 'single' | 'range'): void {
-    if (mode === this.value().mode) {
-      return;
-    }
-
-    this.valueChange.emit(
-      mode === 'single' ? { mode: 'single', date: null } : { mode: 'range', from: null, to: null },
-    );
+  onFromChange(date: Date | null): void {
+    this.valueChange.emit({ ...this.value(), from: date === null ? null : toIsoDate(date) });
   }
 
-  onSingleChange(date: Date | null): void {
-    this.valueChange.emit({ mode: 'single', date: date === null ? null : toIsoDate(date) });
-  }
-
-  onRangeChange(dates: Date[] | null): void {
-    const from = dates?.[0] ?? null;
-    const to = dates?.[1] ?? null;
-
-    this.valueChange.emit({
-      mode: 'range',
-      from: from === null ? null : toIsoDate(from),
-      to: to === null ? null : toIsoDate(to),
-    });
+  onToChange(date: Date | null): void {
+    this.valueChange.emit({ ...this.value(), to: date === null ? null : toIsoDate(date) });
   }
 }
