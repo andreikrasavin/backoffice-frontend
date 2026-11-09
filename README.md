@@ -1,33 +1,62 @@
-# BackofficeFrontend
+# Backoffice — мебельная фабрика
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.6.
+Backoffice для небольшой мебельной фабрики: заказы, клиенты, продукты и производственные
+процессы. SPA на Angular 22 (standalone components, signals, zoneless), TypeScript strict,
+SCSS и ng-zorro-antd.
 
-## Development server
+## Требования
 
-To start a local development server, run:
+- Node.js 22+ (проверено на Node 26)
+- npm 10+
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Запуск
 
 ```bash
-ng generate component component-name
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Приложение будет доступно на `http://localhost:4200/`.
+
+## Сборка и проверки
 
 ```bash
-ng generate --help
+npm run build        # production-сборка в dist/
+npm run lint         # ESLint + angular-eslint
+npm run format       # Prettier
+npm run format:check # проверка форматирования
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Структура
 
-## Additional Resources
+```
+src/
+├── app/
+│   ├── core/       # синглтоны: api, auth, config, http, models
+│   ├── shared/     # ui, directives, pipes, utils — без зависимостей от фич
+│   ├── features/   # вертикальные срезы: dashboard, orders
+│   ├── layout/     # shell, header, sidebar, footer
+│   ├── app.config.ts
+│   ├── app.routes.ts
+│   └── app.ts
+├── environments/   # environment.ts (prod) и environment.development.ts
+├── styles/         # index.scss, _tokens.scss
+└── main.ts
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Алиасы путей: `@core/*`, `@shared/*`, `@features/*`, `@layout/*`, `@env/*`.
+
+## Окружения
+
+`environment.ts` используется в production-сборке, `environment.development.ts`
+подставляется в development через `fileReplacements` в `angular.json`.
+
+## Соглашения
+
+Правила архитектуры, именования и коммитов описаны в [AGENTS.md](AGENTS.md).
+
+## Статус
+
+- Реализованы shell, дашборд и список заказов (данные — заглушки).
+- Разделы клиентов, продуктов и производства пока не реализованы.
+- Авторизация подготовлена (`AuthService`, `authGuard`), но не подключена.

@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, Provider, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { APP_CONFIG } from '@core/config/app-config';
+import { APP_CONFIG } from '@core/config';
 
 @Injectable()
 export class ApiService {

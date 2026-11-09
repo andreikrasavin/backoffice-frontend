@@ -1,11 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-
-export interface DashboardStats {
-  orders: number;
-  customers: number;
-  products: number;
-  inProduction: number;
-}
+import type { DashboardStats } from '@features/dashboard/models';
 
 @Injectable()
 export class DashboardService {

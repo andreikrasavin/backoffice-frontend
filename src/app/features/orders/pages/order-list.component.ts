@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { EmptyStateComponent } from '@shared/ui';
 import { CurrencyPipe } from '@shared/pipes';
-import { OrderStatusBadgeComponent } from '../components/order-status-badge.component';
-import { OrdersService } from '../data-access/orders.service';
+import { OrderStatusBadgeComponent } from '@features/orders/components';
+import { OrdersService } from '@features/orders/data-access';
 
 @Component({
   selector: 'bf-order-list',

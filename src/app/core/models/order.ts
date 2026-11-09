@@ -1,10 +1,5 @@
 export type OrderStatus =
-  | 'draft'
-  | 'confirmed'
-  | 'inproduction'
-  | 'ready'
-  | 'delivered'
-  | 'cancelled';
+  'draft' | 'confirmed' | 'inproduction' | 'ready' | 'delivered' | 'cancelled';
 
 export interface OrderItem {
   id: string;

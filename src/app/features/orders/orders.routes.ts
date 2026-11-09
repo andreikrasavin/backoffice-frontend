@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { OrderListComponent } from './pages/order-list.component';
-import { OrdersService } from './data-access/orders.service';
+import { OrdersService } from '@features/orders/data-access';
+import { OrderListComponent } from '@features/orders/pages';
 
 export const ORDERS_ROUTES: Routes = [
   { path: '', providers: [OrdersService], component: OrderListComponent },

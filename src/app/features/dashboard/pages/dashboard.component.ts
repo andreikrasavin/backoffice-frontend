@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { DashboardService } from '../data-access/dashboard.service';
+import { DashboardService } from '@features/dashboard/data-access';
 
 @Component({
   selector: 'bf-dashboard',
