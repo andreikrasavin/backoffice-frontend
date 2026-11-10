@@ -10,6 +10,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { provideNzIcons } from 'ng-zorro-antd/icon';
 import {
   AppstoreOutline,
+  ArrowLeftOutline,
   BellOutline,
   DashboardOutline,
   DeleteOutline,
@@ -47,6 +48,7 @@ export const appConfig: ApplicationConfig = {
     NzModalService,
     provideNzIcons([
       AppstoreOutline,
+      ArrowLeftOutline,
       BellOutline,
       DashboardOutline,
       DeleteOutline,

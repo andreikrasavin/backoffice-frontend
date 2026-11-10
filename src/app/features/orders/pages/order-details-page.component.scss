@@ -1,0 +1,156 @@
+:host {
+  display: block;
+}
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.order-details__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.order-details__identity {
+  min-width: 0;
+}
+
+.order-details__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.order-details__title {
+  margin: 0;
+  color: var(--app-color-text);
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.order-details__claim {
+  cursor: help;
+}
+
+.order-details__audit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 8px 0 0;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.order-details__separator {
+  color: var(--app-color-text-secondary);
+}
+
+.order-details__grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 2fr 1fr;
+  align-items: start;
+}
+
+.order-details__main,
+.order-details__sidebar {
+  min-width: 0;
+}
+
+.order-details__fields {
+  display: grid;
+  gap: 20px 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.order-details__field dt {
+  margin-bottom: 4px;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.order-details__field dd {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--app-color-text);
+}
+
+.order-details__muted {
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.order-details__manager {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.order-details__manager nz-avatar {
+  flex-shrink: 0;
+  background: var(--app-color-primary);
+  color: #fff;
+}
+
+.order-details__amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.order-details__description {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-color-border);
+}
+
+.order-details__description-title {
+  margin: 0 0 6px;
+  color: var(--app-color-text);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.order-details__description-text {
+  margin: 0;
+  color: var(--app-color-text);
+  white-space: pre-line;
+}
+
+.order-details__state {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  padding: 48px 0;
+}
+
+@media (width < 1024px) {
+  .order-details__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width < 768px) {
+  .order-details__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .order-details__audit {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .order-details__separator {
+    display: none;
+  }
+}

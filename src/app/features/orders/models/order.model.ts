@@ -40,6 +40,12 @@ export interface Order {
   description: string | null;
   /** Стоимость заказа в копейках: целое число, чтобы обойтись без плавающей точки. */
   totalAmountKopecks: number;
+  /** Имя пользователя, создавшего заказ (аудит). */
+  createdBy: string;
+  /** Имя пользователя, последним изменившего заказ, или `null`. */
+  updatedBy: string | null;
+  /** ISO-строка времени последнего изменения или `null`, если изменений не было. */
+  updatedAt: string | null;
 }
 
 export const ORDER_TYPE_LABELS: Record<OrderType, string> = {

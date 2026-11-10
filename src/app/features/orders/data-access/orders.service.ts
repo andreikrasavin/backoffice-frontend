@@ -12,4 +12,11 @@ export class OrdersService {
     // TODO: call API
     this.state.update((orders) => orders.filter((order) => !ids.has(order.id)));
   }
+
+  async getOrderById(id: string): Promise<Order | null> {
+    // TODO: replace with HttpClient
+    const order = this.state().find((item) => item.id === id);
+
+    return order ?? null;
+  }
 }

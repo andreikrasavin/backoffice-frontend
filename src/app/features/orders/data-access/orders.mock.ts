@@ -108,6 +108,9 @@ function createOrders(count: number): readonly Order[] {
       : null;
     const customer = CUSTOMERS[index % CUSTOMERS.length] ?? DEFAULT_CUSTOMER;
     const manager: OrderManager = MANAGERS[index % MANAGERS.length] ?? DEFAULT_MANAGER;
+    const editor: OrderManager = MANAGERS[(index + 1) % MANAGERS.length] ?? DEFAULT_MANAGER;
+    // Roughly half of the orders have been edited at least once.
+    const wasUpdated = index % 2 === 0;
 
     return {
       id: `order-${pad(index + 1, 4)}`,
@@ -120,6 +123,11 @@ function createOrders(count: number): readonly Order[] {
       status,
       description: createDescription(index, type),
       totalAmountKopecks: createAmountKopecks(index, type),
+      createdBy: manager.fullName,
+      updatedBy: wasUpdated ? editor.fullName : null,
+      updatedAt: wasUpdated
+        ? toIsoDate(new Date(createdAt.getTime() + (1 + (index % 3)) * day))
+        : null,
     };
   });
 }
