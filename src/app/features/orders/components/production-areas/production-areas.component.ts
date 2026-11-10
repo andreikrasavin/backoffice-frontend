@@ -87,7 +87,7 @@ export class ProductionAreasComponent {
       nzContent: ProductionAreaFormModalComponent,
       nzData: { area },
       nzFooter: null,
-      nzWidth: 'min(800px, 90vw)',
+      nzWidth: 'min(900px, 92vw)',
       nzMaskClosable: false,
       nzKeyboard: true,
       nzViewContainerRef: this.viewContainerRef,

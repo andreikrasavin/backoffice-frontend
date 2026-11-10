@@ -84,7 +84,13 @@ export class ProductionAreaCardComponent {
     const totals = new Map<ProductionUnit, number>();
 
     for (const operation of this.area().operations) {
-      totals.set(operation.unit, (totals.get(operation.unit) ?? 0) + operation.quantity);
+      const unit = operation.unit;
+
+      if (!unit) {
+        continue;
+      }
+
+      totals.set(unit, (totals.get(unit) ?? 0) + operation.quantity);
     }
 
     const parts = UNIT_ORDER.filter((unit) => (totals.get(unit) ?? 0) > 0).map(

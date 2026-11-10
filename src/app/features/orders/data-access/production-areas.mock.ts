@@ -38,9 +38,9 @@ const OPERATION_TEMPLATES: Record<ProductionAreaType, readonly OperationTemplate
       endOffset: null,
     },
     {
-      master: 'Сидоров Максим Олегович',
+      master: 'Сидоров Пётр Алексеевич',
       operation: 'Сверление',
-      material: 'ЛДСП 16мм',
+      material: 'Саморез 4×30',
       unit: 'шт',
       quantity: 24,
       startOffset: null,
@@ -98,7 +98,7 @@ const OPERATION_TEMPLATES: Record<ProductionAreaType, readonly OperationTemplate
   ],
   edge_banding: [
     {
-      master: 'Сидоров Максим Олегович',
+      master: 'Сидоров Пётр Алексеевич',
       operation: 'Кромление',
       material: 'Кромка ПВХ 2мм',
       unit: 'м',
@@ -138,8 +138,8 @@ const OPERATION_TEMPLATES: Record<ProductionAreaType, readonly OperationTemplate
     {
       master: 'Петрова Анна Сергеевна',
       operation: 'Сверление',
-      material: 'Стекло 4мм',
-      unit: 'м²',
+      material: 'Саморез 4×30',
+      unit: 'шт',
       quantity: 6,
       startOffset: null,
       endOffset: null,

@@ -25,7 +25,7 @@ export interface ProductionOperation {
   endDate: string | null;
   operation: string;
   material: string;
-  unit: ProductionUnit;
+  unit: ProductionUnit | null;
   quantity: number;
 }
 

@@ -98,10 +98,10 @@
             <td class="area-card__ellipsis" [title]="operation.operation">
               {{ operation.operation }}
             </td>
-            <td class="area-card__ellipsis" [title]="operation.material">
-              {{ operation.material }}
+            <td class="area-card__ellipsis" [title]="operation.material || '—'">
+              {{ operation.material || '—' }}
             </td>
-            <td>{{ operation.unit }}</td>
+            <td>{{ operation.unit ?? '—' }}</td>
             <td nzAlign="right">{{ operation.quantity }}</td>
           </tr>
         }
