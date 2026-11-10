@@ -8,7 +8,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 import {
@@ -17,6 +16,7 @@ import {
   ORDER_TYPE_LABELS,
 } from '@features/orders/models';
 import { OrdersService } from '@features/orders/data-access';
+import { OrderDetailsSkeletonComponent } from '@features/orders/components';
 import { MoneyRubPipe } from '@shared/pipes';
 import { getInitials } from '@shared/utils';
 
@@ -30,10 +30,10 @@ import { getInitials } from '@shared/utils';
     NzCardModule,
     NzEmptyModule,
     NzIconModule,
-    NzSpinModule,
     NzTagModule,
     NzTooltipModule,
     MoneyRubPipe,
+    OrderDetailsSkeletonComponent,
   ],
   templateUrl: './order-details-page.component.html',
   styleUrl: './order-details-page.component.scss',

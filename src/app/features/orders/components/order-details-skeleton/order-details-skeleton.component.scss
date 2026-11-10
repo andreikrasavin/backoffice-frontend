@@ -1,0 +1,207 @@
+@use '../../order-details-layout' as layout;
+
+:host {
+  display: block;
+}
+
+.skeleton {
+  display: block;
+}
+
+.skeleton__content {
+  display: flex;
+  flex-direction: column;
+  gap: layout.$details-gap;
+}
+
+.skeleton__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 64px;
+}
+
+.skeleton__identity {
+  min-width: 0;
+}
+
+.skeleton__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.skeleton__grid {
+  @include layout.details-grid;
+}
+
+.skeleton__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 24px;
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
+}
+
+.skeleton__main {
+  min-height: 360px;
+}
+
+.skeleton__sidebar {
+  min-height: 252px;
+}
+
+.skeleton__fields {
+  display: grid;
+  gap: 20px 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.skeleton__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton__field:nth-child(3n + 2) .skeleton__bar--value {
+  width: 78%;
+}
+
+.skeleton__field:nth-child(3n) .skeleton__bar--value {
+  width: 62%;
+}
+
+.skeleton__field:nth-child(5n + 1) .skeleton__bar--value {
+  width: 70%;
+}
+
+.skeleton__sidebar-body {
+  display: flex;
+  align-items: center;
+  min-height: 160px;
+}
+
+.skeleton__bar {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--app-color-border);
+  border-radius: 4px;
+}
+
+.skeleton__bar::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 30%), transparent);
+  transform: translateX(-100%);
+  animation: skeleton-wave 1.4s ease-in-out infinite;
+  content: '';
+}
+
+.skeleton__bar--title {
+  width: 190px;
+  height: 32px;
+}
+
+.skeleton__bar--tag {
+  width: 88px;
+  height: 24px;
+}
+
+.skeleton__bar--status {
+  width: 64px;
+  height: 24px;
+}
+
+.skeleton__bar--audit {
+  width: 300px;
+  max-width: 100%;
+  height: 14px;
+  margin-top: 10px;
+}
+
+.skeleton__bar--button {
+  width: 132px;
+  height: 32px;
+}
+
+.skeleton__bar--card-title {
+  width: 180px;
+  height: 20px;
+}
+
+.skeleton__bar--label {
+  width: 64px;
+  height: 12px;
+}
+
+.skeleton__bar--value {
+  width: 100%;
+  height: 16px;
+}
+
+@keyframes skeleton-wave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (width < 768px) {
+  .skeleton__header {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    min-height: 132px;
+  }
+
+  .skeleton__main {
+    min-height: 560px;
+  }
+
+  .skeleton__sidebar {
+    min-height: 272px;
+  }
+
+  .skeleton__identity {
+    flex: 1 1 100%;
+  }
+
+  .skeleton__title-row {
+    gap: 8px;
+  }
+
+  .skeleton__bar--title {
+    width: 150px;
+    height: 28px;
+  }
+
+  .skeleton__bar--tag {
+    width: 72px;
+  }
+
+  .skeleton__bar--status {
+    width: 56px;
+  }
+
+  .skeleton__bar--button {
+    width: 110px;
+    height: 30px;
+  }
+
+  .skeleton__fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton__bar::after {
+    animation: none;
+    opacity: 0;
+  }
+}

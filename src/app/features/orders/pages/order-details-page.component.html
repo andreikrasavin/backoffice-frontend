@@ -124,9 +124,7 @@
     </div>
   </div>
 } @else if (isLoading()) {
-  <div class="order-details__state">
-    <nz-spin nzSize="large"></nz-spin>
-  </div>
+  <bf-order-details-skeleton />
 } @else if (loadError()) {
   <div class="order-details__state">
     <nz-empty nzNotFoundContent="Не удалось загрузить заказ"></nz-empty>

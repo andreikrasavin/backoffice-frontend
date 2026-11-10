@@ -66,7 +66,7 @@
               "./node_modules/ng-zorro-antd/layout/style/index.min.css",
               "./node_modules/ng-zorro-antd/menu/style/index.min.css",
               "./node_modules/ng-zorro-antd/card/style/index.min.css",
-              "./node_modules/ng-zorro-antd/spin/style/index.min.css",
+              "./node_modules/ng-zorro-antd/skeleton/style/index.min.css",
               "./node_modules/ng-zorro-antd/empty/style/index.min.css",
               "./node_modules/ng-zorro-antd/tag/style/index.min.css",
               "./node_modules/ng-zorro-antd/button/style/index.min.css",

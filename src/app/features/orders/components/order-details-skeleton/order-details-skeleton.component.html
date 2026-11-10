@@ -1,0 +1,43 @@
+<div class="skeleton" aria-busy="true" aria-live="polite">
+  <div class="skeleton__content" aria-hidden="true">
+    <header class="skeleton__header">
+      <div class="skeleton__identity">
+        <div class="skeleton__title-row">
+          <span class="skeleton__bar skeleton__bar--title"></span>
+          <span class="skeleton__bar skeleton__bar--tag"></span>
+          <span class="skeleton__bar skeleton__bar--status"></span>
+        </div>
+        <span class="skeleton__bar skeleton__bar--audit"></span>
+      </div>
+
+      <span class="skeleton__bar skeleton__bar--button"></span>
+    </header>
+
+    <div class="skeleton__grid">
+      <div class="skeleton__card skeleton__main">
+        <span class="skeleton__bar skeleton__bar--card-title"></span>
+
+        <div class="skeleton__fields">
+          @for (field of fields; track field) {
+            <div class="skeleton__field">
+              <span class="skeleton__bar skeleton__bar--label"></span>
+              <span class="skeleton__bar skeleton__bar--value"></span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="skeleton__card skeleton__sidebar">
+        <span class="skeleton__bar skeleton__bar--card-title"></span>
+
+        <div class="skeleton__sidebar-body">
+          <nz-skeleton
+            [nzActive]="!reducedMotion()"
+            [nzTitle]="false"
+            [nzParagraph]="{ rows: 3, width: ['100%', '82%', '58%'] }"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

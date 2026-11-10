@@ -1,0 +1,12 @@
+$details-gap: 24px;
+
+@mixin details-grid {
+  display: grid;
+  gap: $details-gap;
+  grid-template-columns: 2fr 1fr;
+  align-items: start;
+
+  @media (width < 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
