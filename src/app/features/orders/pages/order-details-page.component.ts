@@ -1,88 +1,80 @@
-import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
-import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
+import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
-import {
-  ORDER_STATUS_COLORS,
-  ORDER_STATUS_LABELS,
-  ORDER_TYPE_LABELS,
-  ProductionArea,
-} from '@features/orders/models';
-import { OrdersService, ProductionAreasService } from '@features/orders/data-access';
+import { ORDER_STATUS_COLORS, ORDER_STATUS_LABELS } from '@features/orders/models';
+import { OrderDetailsStore } from '@features/orders/data-access';
 import { OrderDetailsSkeletonComponent } from '@features/orders/components';
-import { MoneyRubPipe } from '@shared/pipes';
-import { getInitials } from '@shared/utils';
 
 @Component({
   selector: 'bf-order-details',
   imports: [
     DatePipe,
     RouterLink,
-    NzAvatarModule,
+    RouterOutlet,
+    NzBreadCrumbModule,
     NzButtonModule,
-    NzCardModule,
     NzEmptyModule,
     NzIconModule,
+    NzTabsModule,
     NzTagModule,
     NzTooltipModule,
-    MoneyRubPipe,
     OrderDetailsSkeletonComponent,
   ],
   templateUrl: './order-details-page.component.html',
   styleUrl: './order-details-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrderDetailsPageComponent {
+export class OrderDetailsLayoutComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly ordersService = inject(OrdersService);
-  private readonly productionAreasService = inject(ProductionAreasService);
+  private readonly router = inject(Router);
+
+  protected readonly store = inject(OrderDetailsStore);
 
   protected readonly statusLabels = ORDER_STATUS_LABELS;
   protected readonly statusColors = ORDER_STATUS_COLORS;
-  protected readonly typeLabels = ORDER_TYPE_LABELS;
 
-  protected readonly initials = getInitials;
+  protected readonly orderId = signal(this.route.snapshot.paramMap.get('id') ?? '');
 
-  private readonly orderId = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
+  protected readonly activeTabTitle = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(() => this.readTabTitle()),
+    ),
+    { initialValue: this.readTabTitle() },
   );
 
-  private readonly orderResource = resource({
-    params: () => this.orderId(),
-    loader: ({ params }) =>
-      params ? this.ordersService.getOrderById(params) : Promise.resolve(null),
-  });
-
-  private readonly areasResource = resource({
-    params: () => this.orderId(),
-    loader: ({ params }) =>
-      params
-        ? this.productionAreasService.getAreasByOrderId(params)
-        : Promise.resolve<ProductionArea[]>([]),
-  });
-
-  protected readonly order = computed(() => this.orderResource.value() ?? null);
-  protected readonly isOrderLoading = this.orderResource.isLoading;
-  protected readonly orderError = this.orderResource.error;
-
-  protected readonly areas = computed(() => this.areasResource.value() ?? []);
-  protected readonly isAreasLoading = this.areasResource.isLoading;
-  protected readonly areasError = this.areasResource.error;
-
-  protected retryOrder(): void {
-    void this.orderResource.reload();
+  constructor() {
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('id') ?? ''),
+        takeUntilDestroyed(),
+      )
+      .subscribe((id) => {
+        this.orderId.set(id);
+        this.store.load(id);
+      });
   }
 
-  protected retryAreas(): void {
-    void this.areasResource.reload();
+  protected retryLoad(): void {
+    this.store.load(this.orderId());
+  }
+
+  private readTabTitle(): string {
+    let child = this.route.firstChild;
+
+    while (child?.firstChild) {
+      child = child.firstChild;
+    }
+
+    return (child?.snapshot?.data?.['title'] as string | undefined) ?? '';
   }
 }

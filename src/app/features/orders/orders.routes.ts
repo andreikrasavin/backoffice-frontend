@@ -1,6 +1,15 @@
 import { Routes } from '@angular/router';
-import { OrdersService, ProductionAreasService } from '@features/orders/data-access';
-import { OrderDetailsPageComponent, OrderListComponent } from '@features/orders/pages';
+import {
+  OrderDetailsStore,
+  OrdersService,
+  ProductionAreasService,
+} from '@features/orders/data-access';
+import {
+  OrderDetailsLayoutComponent,
+  OrderInfoTabComponent,
+  OrderListComponent,
+  OrderMapTabComponent,
+} from '@features/orders/pages';
 
 export const ORDERS_ROUTES: Routes = [
   {
@@ -8,7 +17,25 @@ export const ORDERS_ROUTES: Routes = [
     providers: [OrdersService, ProductionAreasService],
     children: [
       { path: '', component: OrderListComponent },
-      { path: ':id', component: OrderDetailsPageComponent },
+      {
+        path: ':id',
+        component: OrderDetailsLayoutComponent,
+        providers: [OrderDetailsStore],
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'detail' },
+          {
+            path: 'detail',
+            component: OrderInfoTabComponent,
+            data: { title: 'Информация' },
+          },
+          {
+            path: 'map',
+            component: OrderMapTabComponent,
+            data: { title: 'Карта прохождения' },
+          },
+          { path: '**', redirectTo: 'detail' },
+        ],
+      },
     ],
   },
 ];

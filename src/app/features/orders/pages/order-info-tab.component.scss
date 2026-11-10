@@ -1,0 +1,102 @@
+@use '../order-details-layout' as layout;
+
+:host {
+  display: block;
+}
+
+.order-details__grid {
+  @include layout.details-grid;
+}
+
+.order-details__main,
+.order-details__sidebar {
+  min-width: 0;
+}
+
+.order-details__fields {
+  display: grid;
+  gap: 20px 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.order-details__field dt {
+  margin-bottom: 4px;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.order-details__field dd {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--app-color-text);
+}
+
+.order-details__muted {
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.order-details__manager {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.order-details__manager nz-avatar {
+  flex-shrink: 0;
+  background: var(--app-color-primary);
+  color: #fff;
+}
+
+.order-details__amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.order-details__description {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-color-border);
+}
+
+.order-details__description-title {
+  margin: 0 0 6px;
+  color: var(--app-color-text);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.order-details__description-text {
+  margin: 0;
+  color: var(--app-color-text);
+  white-space: pre-line;
+}
+
+.order-details__areas {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--app-color-text);
+}
+
+.order-details__areas li + li {
+  margin-top: 6px;
+}
+
+.order-details__areas-error {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+@media (width < 768px) {
+  .order-details__fields {
+    grid-template-columns: 1fr;
+  }
+}
