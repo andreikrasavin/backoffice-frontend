@@ -1,4 +1,6 @@
 export * from './order-details-skeleton/order-details-skeleton.component';
+export * from './production-area-card/production-area-card.component';
+export * from './production-areas/production-areas.component';
 export * from './order-status-badge.component';
 export * from './orders-amount-filter.component';
 export * from './orders-checkbox-filter.component';

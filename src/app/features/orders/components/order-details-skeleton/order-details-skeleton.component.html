@@ -38,12 +38,22 @@
       <div class="skeleton__card skeleton__sidebar" aria-hidden="true">
         <span class="skeleton__bar skeleton__bar--card-title"></span>
 
-        <div class="skeleton__sidebar-body">
-          <nz-skeleton
-            [nzActive]="!reducedMotion()"
-            [nzTitle]="false"
-            [nzParagraph]="{ rows: 3, width: ['100%', '82%', '58%'] }"
-          />
+        <div class="skeleton__areas">
+          @for (card of areaCards; track card) {
+            <div class="skeleton__area-card">
+              <span class="skeleton__bar skeleton__bar--area-title"></span>
+              <span class="skeleton__bar skeleton__bar--area-meta"></span>
+              <span
+                class="skeleton__bar skeleton__bar--area-meta skeleton__bar--area-meta-short"
+              ></span>
+
+              <div class="skeleton__area-rows">
+                @for (row of areaRows; track row) {
+                  <span class="skeleton__bar skeleton__bar--area-row"></span>
+                }
+              </div>
+            </div>
+          }
         </div>
       </div>
     </div>

@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.production-areas__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.production-areas__add-wrap {
+  display: block;
+  margin-top: 12px;
+}
+
+.production-areas__banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  color: var(--app-color-danger);
+  font-size: 12px;
+  border: 1px solid var(--app-color-danger);
+  border-radius: 6px;
+}
+
+.production-areas__error {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}

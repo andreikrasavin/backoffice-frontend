@@ -1,0 +1,111 @@
+<div class="area-card">
+  <header class="area-card__header">
+    <h3 class="area-card__title">{{ label() }}</h3>
+
+    @if (isBusy()) {
+      <nz-icon nzType="loading" class="area-card__spinner" />
+    }
+
+    <button
+      class="area-card__menu-button"
+      nz-button
+      nzType="text"
+      nzShape="circle"
+      nz-dropdown
+      [nzDropdownMenu]="areaMenu"
+      nzTrigger="click"
+      nzPlacement="bottomRight"
+      [disabled]="isBusy()"
+      [attr.aria-label]="'Действия с участком ' + label()"
+      nz-tooltip
+      nzTooltipTitle="Действия"
+      type="button"
+    >
+      <nz-icon nzType="more" />
+    </button>
+  </header>
+
+  <nz-dropdown-menu #areaMenu="nzDropdownMenu">
+    <ul nz-menu class="area-card__menu">
+      <li nz-menu-item disabled class="area-card__menu-title">Действия</li>
+
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+      <li nz-menu-item (click)="edit.emit()">
+        <nz-icon nzType="edit" />
+        Изменить
+      </li>
+
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+      <li nz-menu-item nzDanger (click)="confirmClear()">
+        <nz-icon nzType="clear" />
+        Очистить
+      </li>
+
+      <li nz-menu-divider></li>
+
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+      <li nz-menu-item nzDanger (click)="confirmRemove()">
+        <nz-icon nzType="delete" />
+        Удалить участок
+      </li>
+    </ul>
+  </nz-dropdown-menu>
+
+  @if (area().operations.length === 0) {
+    <p class="area-card__no-operations">Операции не добавлены</p>
+  } @else {
+    <dl class="area-card__meta">
+      <div class="area-card__meta-item">
+        <dt>Диапазон</dt>
+        <dd>{{ dateRange() }}</dd>
+      </div>
+
+      <div class="area-card__meta-item">
+        <dt>Операций</dt>
+        <dd>{{ area().operations.length }}</dd>
+      </div>
+
+      <div class="area-card__meta-item">
+        <dt>Материала</dt>
+        <dd>{{ quantityText() }}</dd>
+      </div>
+    </dl>
+
+    <nz-table
+      class="area-card__table"
+      nzSize="small"
+      [nzData]="area().operations"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      [nzScroll]="{ x: '580px' }"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="120px">Мастер</th>
+          <th nzWidth="160px">Диапазон</th>
+          <th nzWidth="96px">Операция</th>
+          <th nzWidth="100px">Материал</th>
+          <th nzWidth="46px">Ед. изм.</th>
+          <th nzWidth="52px" nzAlign="right">Кол-во</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (operation of area().operations; track operation.id) {
+          <tr>
+            <td class="area-card__ellipsis" [title]="operation.master">{{ operation.master }}</td>
+            <td class="area-card__ellipsis">{{ formatOperationRange(operation) }}</td>
+            <td class="area-card__ellipsis" [title]="operation.operation">
+              {{ operation.operation }}
+            </td>
+            <td class="area-card__ellipsis" [title]="operation.material">
+              {{ operation.material }}
+            </td>
+            <td>{{ operation.unit }}</td>
+            <td nzAlign="right">{{ operation.quantity }}</td>
+          </tr>
+        }
+      </tbody>
+    </nz-table>
+  }
+</div>

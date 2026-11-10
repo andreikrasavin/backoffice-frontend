@@ -70,30 +70,6 @@
   </main>
 
   <aside class="order-details__sidebar">
-    @if (store.areasLoading()) {
-      <bf-order-details-skeleton section="sidebar" />
-    } @else if (store.areasError()) {
-      <nz-card nzTitle="Участки">
-        <div class="order-details__areas-error">
-          <span>Не удалось загрузить участки</span>
-          <button nz-button nzSize="small" type="button" (click)="store.retryAreas()">
-            <nz-icon nzType="reload" />
-            Повторить
-          </button>
-        </div>
-      </nz-card>
-    } @else {
-      <nz-card nzTitle="Участки">
-        @if (store.areas().length === 0) {
-          <nz-empty nzNotFoundContent="Информация об участках будет добавлена позже"></nz-empty>
-        } @else {
-          <ul class="order-details__areas">
-            @for (area of store.areas(); track area.id) {
-              <li>{{ area.name }}</li>
-            }
-          </ul>
-        }
-      </nz-card>
-    }
+    <bf-production-areas />
   </aside>
 </div>

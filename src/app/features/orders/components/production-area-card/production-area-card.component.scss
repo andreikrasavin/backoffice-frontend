@@ -1,0 +1,118 @@
+:host {
+  display: block;
+}
+
+.area-card {
+  padding: 12px 16px 16px;
+  background: var(--app-color-surface);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
+}
+
+.area-card__header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.area-card__title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--app-color-text);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.area-card__spinner {
+  color: var(--app-color-text-secondary);
+  font-size: 14px;
+}
+
+.area-card__menu-button {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+.area-card__menu {
+  min-width: 200px;
+}
+
+.area-card__menu-title {
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.area-card__menu nz-icon {
+  margin-inline-end: 8px;
+}
+
+.area-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  background: var(--app-color-bg);
+  border-radius: 6px;
+}
+
+.area-card__meta-item {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.area-card__meta-item dt {
+  flex-shrink: 0;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.area-card__meta-item dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--app-color-text);
+  font-size: 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.area-card__no-operations {
+  margin: 10px 0 0;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
+.area-card__table {
+  display: block;
+  margin-top: 12px;
+}
+
+.area-card__table ::ng-deep .ant-table {
+  font-size: 12px;
+}
+
+.area-card__table ::ng-deep table {
+  table-layout: fixed;
+}
+
+.area-card__table ::ng-deep .ant-table-thead > tr > th {
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+
+.area-card__table ::ng-deep .ant-table-tbody > tr > td {
+  padding: 6px 8px;
+}
+
+.area-card__ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

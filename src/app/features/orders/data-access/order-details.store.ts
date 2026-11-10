@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, resource, signal } from '@angular/core';
-import { ProductionArea } from '@features/orders/models';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { PRODUCTION_AREA_ORDER, ProductionArea, ProductionAreaType } from '@features/orders/models';
 import { OrdersService } from './orders.service';
 import { ProductionAreasService } from './production-areas.service';
 
@@ -7,8 +8,10 @@ import { ProductionAreasService } from './production-areas.service';
 export class OrderDetailsStore {
   private readonly ordersService = inject(OrdersService);
   private readonly productionAreasService = inject(ProductionAreasService);
+  private readonly message = inject(NzMessageService);
 
   private readonly currentId = signal<string | null>(null);
+  private readonly areasOverride = signal<ProductionArea[] | null>(null);
 
   private readonly orderResource = resource({
     params: () => this.currentId(),
@@ -24,18 +27,45 @@ export class OrderDetailsStore {
         : Promise.resolve<ProductionArea[]>([]),
   });
 
-  readonly order = computed(() => this.orderResource.value() ?? null);
+  readonly order = computed(() =>
+    this.orderResource.hasValue() ? this.orderResource.value() : null,
+  );
   readonly orderLoading = this.orderResource.isLoading;
   readonly orderError = this.orderResource.error;
 
-  readonly areas = computed(() => this.areasResource.value() ?? []);
+  readonly areas = computed<readonly ProductionArea[]>(() => {
+    const override = this.areasOverride();
+    if (override) {
+      return override;
+    }
+    return this.areasResource.hasValue() ? this.areasResource.value() : [];
+  });
   readonly areasLoading = this.areasResource.isLoading;
   readonly areasError = this.areasResource.error;
+
+  readonly addingArea = signal(false);
+  readonly removingAreaId = signal<string | null>(null);
+  readonly clearingAreaId = signal<string | null>(null);
+
+  readonly sortedAreas = computed<readonly ProductionArea[]>(() =>
+    [...this.areas()].sort(
+      (first, second) =>
+        PRODUCTION_AREA_ORDER.indexOf(first.type) - PRODUCTION_AREA_ORDER.indexOf(second.type),
+    ),
+  );
+
+  readonly availableAreaTypes = computed<readonly ProductionAreaType[]>(() => {
+    const usedTypes = new Set(this.areas().map((area) => area.type));
+
+    return PRODUCTION_AREA_ORDER.filter((type) => !usedTypes.has(type));
+  });
 
   load(id: string): void {
     if (!id) {
       return;
     }
+
+    this.areasOverride.set(null);
 
     if (this.currentId() === id) {
       this.reload();
@@ -47,6 +77,65 @@ export class OrderDetailsStore {
 
   retryAreas(): void {
     void this.areasResource.reload();
+  }
+
+  async addArea(type: ProductionAreaType): Promise<void> {
+    const orderId = this.currentId();
+
+    if (!orderId || this.addingArea()) {
+      return;
+    }
+
+    this.addingArea.set(true);
+
+    try {
+      const area = await this.productionAreasService.addArea(orderId, type);
+      this.areasOverride.set([...this.areas(), area]);
+    } catch {
+      this.message.error('Не удалось добавить участок');
+    } finally {
+      this.addingArea.set(false);
+    }
+  }
+
+  async removeArea(areaId: string): Promise<void> {
+    const orderId = this.currentId();
+
+    if (!orderId || this.removingAreaId() || this.clearingAreaId()) {
+      return;
+    }
+
+    this.removingAreaId.set(areaId);
+
+    try {
+      await this.productionAreasService.removeArea(orderId, areaId);
+      this.areasOverride.set(this.areas().filter((area) => area.id !== areaId));
+    } catch {
+      this.message.error('Не удалось удалить участок');
+    } finally {
+      this.removingAreaId.set(null);
+    }
+  }
+
+  async clearArea(areaId: string): Promise<void> {
+    const orderId = this.currentId();
+
+    if (!orderId || this.removingAreaId() || this.clearingAreaId()) {
+      return;
+    }
+
+    this.clearingAreaId.set(areaId);
+
+    try {
+      await this.productionAreasService.clearArea(orderId, areaId);
+      this.areasOverride.set(
+        this.areas().map((area) => (area.id === areaId ? { ...area, operations: [] } : area)),
+      );
+    } catch {
+      this.message.error('Не удалось очистить участок');
+    } finally {
+      this.clearingAreaId.set(null);
+    }
   }
 
   private reload(): void {

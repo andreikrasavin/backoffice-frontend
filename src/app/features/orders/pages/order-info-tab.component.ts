@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import {
   ORDER_STATUS_COLORS,
@@ -12,7 +9,10 @@ import {
   ORDER_TYPE_LABELS,
 } from '@features/orders/models';
 import { OrderDetailsStore } from '@features/orders/data-access';
-import { OrderDetailsSkeletonComponent } from '@features/orders/components';
+import {
+  OrderDetailsSkeletonComponent,
+  ProductionAreasComponent,
+} from '@features/orders/components';
 import { MoneyRubPipe } from '@shared/pipes';
 import { getInitials } from '@shared/utils';
 
@@ -21,13 +21,11 @@ import { getInitials } from '@shared/utils';
   imports: [
     DatePipe,
     NzAvatarModule,
-    NzButtonModule,
     NzCardModule,
-    NzEmptyModule,
-    NzIconModule,
     NzTagModule,
     MoneyRubPipe,
     OrderDetailsSkeletonComponent,
+    ProductionAreasComponent,
   ],
   templateUrl: './order-info-tab.component.html',
   styleUrl: './order-info-tab.component.scss',

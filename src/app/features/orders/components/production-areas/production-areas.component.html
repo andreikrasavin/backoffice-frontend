@@ -1,0 +1,68 @@
+@if (store.areasLoading() && store.areas().length === 0) {
+  <bf-order-details-skeleton section="sidebar" />
+} @else if (store.areasError() && store.areas().length === 0) {
+  <nz-card nzTitle="Участки">
+    <div class="production-areas__error">
+      <span>Не удалось загрузить участки</span>
+      <button nz-button nzSize="small" type="button" (click)="store.retryAreas()">
+        <nz-icon nzType="reload" />
+        Повторить
+      </button>
+    </div>
+  </nz-card>
+} @else {
+  <nz-card nzTitle="Участки">
+    @if (store.areasError()) {
+      <div class="production-areas__banner">
+        <span>Не удалось обновить участки</span>
+        <button nz-button nzSize="small" type="button" (click)="store.retryAreas()">
+          Повторить
+        </button>
+      </div>
+    }
+
+    @if (store.areas().length === 0) {
+      <nz-empty nzNotFoundContent="Участки не добавлены"></nz-empty>
+    } @else {
+      <div class="production-areas__list">
+        @for (area of store.sortedAreas(); track area.id) {
+          <bf-production-area-card
+            [area]="area"
+            [isRemoving]="store.removingAreaId() === area.id"
+            [isClearing]="store.clearingAreaId() === area.id"
+            (remove)="store.removeArea(area.id)"
+            (clear)="store.clearArea(area.id)"
+            (edit)="onEdit(area)"
+          />
+        }
+      </div>
+    }
+
+    <span class="production-areas__add-wrap" nz-tooltip [nzTooltipTitle]="addTooltip()">
+      <button
+        class="production-areas__add"
+        nz-button
+        nzType="dashed"
+        nzBlock
+        type="button"
+        [disabled]="isAddDisabled()"
+        [nzDropdownMenu]="addMenu"
+        nz-dropdown
+        nzTrigger="click"
+        nzPlacement="bottomLeft"
+      >
+        <nz-icon [nzType]="store.addingArea() ? 'loading' : 'plus'" />
+        Добавить участок
+      </button>
+    </span>
+
+    <nz-dropdown-menu #addMenu="nzDropdownMenu">
+      <ul nz-menu>
+        @for (type of store.availableAreaTypes(); track type) {
+          <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+          <li nz-menu-item (click)="store.addArea(type)">{{ labels[type] }}</li>
+        }
+      </ul>
+    </nz-dropdown-menu>
+  </nz-card>
+}
