@@ -68,10 +68,10 @@
           (nzCheckedChange)="togglePage($event)"
         ></th>
 
-        <th nzWidth="140px" [nzSortFn]="sortByNumber" nzCustomFilter>
+        <th nzWidth="150px" [nzSortFn]="sortByNumber" nzCustomFilter>
           Номер заказа
           <nz-filter-trigger
-            [nzActive]="numberFilter().trim().length > 0"
+            [nzActive]="numberFilter().trim().length > 0 || typeFilter().length > 0"
             [nzDropdownMenu]="numberMenu"
             [nzVisible]="openFilter() === 'number'"
             (nzVisibleChange)="setFilterVisible('number', $event)"
@@ -80,7 +80,7 @@
           </nz-filter-trigger>
         </th>
 
-        <th nzWidth="240px" nzCustomFilter>
+        <th nzWidth="220px" nzCustomFilter>
           Заказчик
           <nz-filter-trigger
             [nzActive]="customerFilter().length > 0"
@@ -92,7 +92,7 @@
           </nz-filter-trigger>
         </th>
 
-        <th nzWidth="200px" nzCustomFilter>
+        <th nzWidth="180px" nzCustomFilter>
           Менеджер
           <nz-filter-trigger
             [nzActive]="managerFilter().length > 0"
@@ -128,19 +128,7 @@
           </nz-filter-trigger>
         </th>
 
-        <th nzWidth="130px" nzCustomFilter>
-          Тип заказа
-          <nz-filter-trigger
-            [nzActive]="typeFilter().length > 0"
-            [nzDropdownMenu]="typeMenu"
-            [nzVisible]="openFilter() === 'type'"
-            (nzVisibleChange)="setFilterVisible('type', $event)"
-          >
-            <nz-icon nzType="filter" nzTheme="fill" />
-          </nz-filter-trigger>
-        </th>
-
-        <th nzWidth="170px" nzCustomFilter>
+        <th nzWidth="150px" nzCustomFilter>
           Статус заказа
           <nz-filter-trigger
             [nzActive]="statusFilter().length > 0"
@@ -152,7 +140,19 @@
           </nz-filter-trigger>
         </th>
 
-        <th nzWidth="130px">Действия</th>
+        <th nzWidth="150px" nzAlign="right" [nzSortFn]="sortByAmount" nzCustomFilter>
+          Стоимость
+          <nz-filter-trigger
+            [nzActive]="amountActive()"
+            [nzDropdownMenu]="amountMenu"
+            [nzVisible]="openFilter() === 'amount'"
+            (nzVisibleChange)="setFilterVisible('amount', $event)"
+          >
+            <nz-icon nzType="filter" nzTheme="fill" />
+          </nz-filter-trigger>
+        </th>
+
+        <th nzWidth="120px">Действия</th>
       </tr>
     </thead>
 
@@ -166,9 +166,15 @@
           ></td>
 
           <td>
-            <a class="orders-table__link" [routerLink]="['/orders', order.id]">{{
-              order.number
-            }}</a>
+            <div class="orders-table__number">
+              <a class="orders-table__link" [routerLink]="['/orders', order.id]">{{
+                order.number
+              }}</a>
+
+              @if (order.type === 'claim') {
+                <span class="orders-table__muted orders-table__muted--danger">Рекламация</span>
+              }
+            </div>
           </td>
 
           <td>
@@ -187,11 +193,11 @@
           <td>{{ formatDay(order.shippedAt) }}</td>
 
           <td>
-            <nz-tag [nzColor]="typeColors[order.type]">{{ typeLabels[order.type] }}</nz-tag>
+            <nz-tag [nzColor]="statusColors[order.status]">{{ statusLabels[order.status] }}</nz-tag>
           </td>
 
-          <td>
-            <nz-tag [nzColor]="statusColors[order.status]">{{ statusLabels[order.status] }}</nz-tag>
+          <td nzAlign="right" class="orders-table__amount">
+            {{ order.totalAmountKopecks | bfMoneyRub }}
           </td>
 
           <td>
@@ -247,7 +253,7 @@
 
   <nz-dropdown-menu #numberMenu="nzDropdownMenu">
     <bf-orders-filter-panel
-      [resetDisabled]="numberFilter().trim().length === 0"
+      [resetDisabled]="numberFilter().trim().length === 0 && typeFilter().length === 0"
       (resetFilter)="resetNumberFilter()"
       (apply)="applyFilter()"
     >
@@ -259,6 +265,14 @@
         placeholder="Например, 2025-00042"
         [ngModel]="numberFilter()"
         (ngModelChange)="setNumberFilter($event)"
+      />
+
+      <span class="order-filter__label">Тип заказа</span>
+      <bf-orders-checkbox-filter
+        [options]="typeOptions"
+        [selected]="typeFilter()"
+        [searchable]="false"
+        (selectedChange)="onTypeFilterChange($event)"
       />
     </bf-orders-filter-panel>
   </nz-dropdown-menu>
@@ -313,21 +327,6 @@
     </bf-orders-filter-panel>
   </nz-dropdown-menu>
 
-  <nz-dropdown-menu #typeMenu="nzDropdownMenu">
-    <bf-orders-filter-panel
-      [resetDisabled]="typeFilter().length === 0"
-      (resetFilter)="resetTypeFilter()"
-      (apply)="applyFilter()"
-    >
-      <bf-orders-checkbox-filter
-        [options]="typeOptions"
-        [selected]="typeFilter()"
-        searchPlaceholder="Поиск типа"
-        (selectedChange)="onTypeFilterChange($event)"
-      />
-    </bf-orders-filter-panel>
-  </nz-dropdown-menu>
-
   <nz-dropdown-menu #statusMenu="nzDropdownMenu">
     <bf-orders-filter-panel
       [resetDisabled]="statusFilter().length === 0"
@@ -340,6 +339,16 @@
         searchPlaceholder="Поиск статуса"
         (selectedChange)="onStatusFilterChange($event)"
       />
+    </bf-orders-filter-panel>
+  </nz-dropdown-menu>
+
+  <nz-dropdown-menu #amountMenu="nzDropdownMenu">
+    <bf-orders-filter-panel
+      [resetDisabled]="!amountActive()"
+      (resetFilter)="resetAmountFilter()"
+      (apply)="applyFilter()"
+    >
+      <bf-orders-amount-filter [value]="amountFilter()" (valueChange)="setAmountFilter($event)" />
     </bf-orders-filter-panel>
   </nz-dropdown-menu>
 </div>

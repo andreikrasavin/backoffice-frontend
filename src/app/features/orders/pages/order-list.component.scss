@@ -54,6 +54,13 @@
   font-weight: 500;
 }
 
+.orders-table__number {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 40px;
+}
+
 .orders-table__customer {
   color: var(--app-color-text);
 }
@@ -62,6 +69,27 @@
   margin-top: 2px;
   color: var(--app-color-text-secondary);
   font-size: 12px;
+}
+
+.orders-table__muted--danger {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--app-color-danger);
+}
+
+.orders-table__muted--danger::before {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 50%;
+  content: '';
+}
+
+.orders-table__amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .orders-table__manager {

@@ -18,30 +18,35 @@ import {
   Order,
   ORDER_STATUS_COLORS,
   ORDER_STATUS_LABELS,
-  ORDER_TYPE_COLORS,
   ORDER_TYPE_LABELS,
   OrderStatus,
   OrderType,
 } from '@features/orders/models';
 import {
+  AmountRangeFilter,
   DateRangeFilter,
+  EMPTY_AMOUNT_FILTER,
   EMPTY_DATE_FILTER,
   exportOrdersToCsv,
   filterOrders,
+  isAmountFilterActive,
   isDateFilterActive,
   OrdersFilter,
   OrdersService,
 } from '@features/orders/data-access';
 import {
+  OrdersAmountFilterComponent,
   OrdersCheckboxFilterComponent,
   OrdersDateFilterComponent,
   OrdersFilterPanelComponent,
 } from '@features/orders/components';
+import { MoneyRubPipe } from '@shared/pipes';
 
 const PAGE_SIZE_OPTIONS: number[] = [25, 50, 100];
 const DEFAULT_PAGE_SIZE = 50;
 
-type OrderFilterKey = 'number' | 'customer' | 'manager' | 'created' | 'shipped' | 'type' | 'status';
+type OrderFilterKey =
+  'number' | 'customer' | 'manager' | 'created' | 'shipped' | 'status' | 'amount';
 
 const STATUS_ORDER: readonly OrderStatus[] = [
   'new',
@@ -69,6 +74,8 @@ const STATUS_ORDER: readonly OrderStatus[] = [
     NzTableModule,
     NzTagModule,
     NzTooltipModule,
+    MoneyRubPipe,
+    OrdersAmountFilterComponent,
     OrdersCheckboxFilterComponent,
     OrdersDateFilterComponent,
     OrdersFilterPanelComponent,
@@ -87,8 +94,6 @@ export class OrderListComponent {
   readonly orders = this.ordersService.orders;
 
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
-  readonly typeLabels = ORDER_TYPE_LABELS;
-  readonly typeColors = ORDER_TYPE_COLORS;
   readonly statusLabels = ORDER_STATUS_LABELS;
   readonly statusColors = ORDER_STATUS_COLORS;
   readonly typeOptions = (Object.keys(ORDER_TYPE_LABELS) as OrderType[]).map((value) => ({
@@ -107,6 +112,7 @@ export class OrderListComponent {
   readonly shippedFilter = signal<DateRangeFilter>(EMPTY_DATE_FILTER);
   readonly typeFilter = signal<readonly OrderType[]>([]);
   readonly statusFilter = signal<readonly OrderStatus[]>([]);
+  readonly amountFilter = signal<AmountRangeFilter>(EMPTY_AMOUNT_FILTER);
 
   /** Ключ открытого попапа фильтра — нужен, чтобы «Применить» закрывал его. */
   readonly openFilter = signal<OrderFilterKey | null>(null);
@@ -125,6 +131,7 @@ export class OrderListComponent {
     shipped: this.shippedFilter(),
     types: this.typeFilter(),
     statuses: this.statusFilter(),
+    amount: this.amountFilter(),
   }));
 
   readonly filteredOrders = computed(() => filterOrders(this.orders(), this.filter()));
@@ -155,6 +162,8 @@ export class OrderListComponent {
 
   readonly shippedActive = computed(() => isDateFilterActive(this.shippedFilter()));
 
+  readonly amountActive = computed(() => isAmountFilterActive(this.amountFilter()));
+
   readonly hasActiveFilters = computed(
     () =>
       this.numberFilter().trim().length > 0 ||
@@ -163,7 +172,8 @@ export class OrderListComponent {
       this.createdActive() ||
       this.shippedActive() ||
       this.typeFilter().length > 0 ||
-      this.statusFilter().length > 0,
+      this.statusFilter().length > 0 ||
+      this.amountActive(),
   );
 
   readonly pageAllSelected = computed(() => {
@@ -185,6 +195,9 @@ export class OrderListComponent {
   // `null` (ещё не отгружен) уходит в конец при сортировке по возрастанию.
   readonly sortByShippedAt = (a: Order, b: Order): number =>
     (a.shippedAt ?? '9999-12-31').localeCompare(b.shippedAt ?? '9999-12-31');
+
+  readonly sortByAmount = (a: Order, b: Order): number =>
+    a.totalAmountKopecks - b.totalAmountKopecks;
 
   constructor() {
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
@@ -251,6 +264,11 @@ export class OrderListComponent {
     this.resetPage();
   }
 
+  setAmountFilter(filter: AmountRangeFilter): void {
+    this.amountFilter.set(filter);
+    this.resetPage();
+  }
+
   /** Чекбокс-список отдаёт строки; оставляем только известные типы. */
   onTypeFilterChange(values: readonly string[]): void {
     this.setTypeFilter(values.filter((value): value is OrderType => value in ORDER_TYPE_LABELS));
@@ -271,13 +289,16 @@ export class OrderListComponent {
     this.shippedFilter.set(EMPTY_DATE_FILTER);
     this.typeFilter.set([]);
     this.statusFilter.set([]);
+    this.amountFilter.set(EMPTY_AMOUNT_FILTER);
     this.openFilter.set(null);
     this.resetPage();
   }
 
-  /** Сброс только одной колонки; попап остаётся открытым. */
+  /** Сброс колонки «Номер заказа»: там же живёт фильтр по типу, поэтому чистим оба. */
   resetNumberFilter(): void {
-    this.setNumberFilter('');
+    this.numberFilter.set('');
+    this.typeFilter.set([]);
+    this.resetPage();
   }
 
   resetCustomerFilter(): void {
@@ -296,12 +317,12 @@ export class OrderListComponent {
     this.setShippedFilter(EMPTY_DATE_FILTER);
   }
 
-  resetTypeFilter(): void {
-    this.setTypeFilter([]);
-  }
-
   resetStatusFilter(): void {
     this.setStatusFilter([]);
+  }
+
+  resetAmountFilter(): void {
+    this.setAmountFilter(EMPTY_AMOUNT_FILTER);
   }
 
   setFilterVisible(key: OrderFilterKey, visible: boolean): void {

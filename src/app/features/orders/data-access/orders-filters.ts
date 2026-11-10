@@ -6,6 +6,12 @@ export interface DateRangeFilter {
   to: string | null;
 }
 
+/** Открытый диапазон стоимости: границы хранятся в рублях. */
+export interface AmountRangeFilter {
+  from: number | null;
+  to: number | null;
+}
+
 export interface OrdersFilter {
   /** Поиск по номеру заказа (подстрока, без учёта регистра). */
   number: string;
@@ -15,9 +21,12 @@ export interface OrdersFilter {
   shipped: DateRangeFilter;
   types: readonly OrderType[];
   statuses: readonly OrderStatus[];
+  amount: AmountRangeFilter;
 }
 
 export const EMPTY_DATE_FILTER: DateRangeFilter = { from: null, to: null };
+
+export const EMPTY_AMOUNT_FILTER: AmountRangeFilter = { from: null, to: null };
 
 export const EMPTY_ORDERS_FILTER: OrdersFilter = {
   number: '',
@@ -27,10 +36,34 @@ export const EMPTY_ORDERS_FILTER: OrdersFilter = {
   shipped: EMPTY_DATE_FILTER,
   types: [],
   statuses: [],
+  amount: EMPTY_AMOUNT_FILTER,
 };
 
 export function isDateFilterActive(filter: DateRangeFilter): boolean {
   return filter.from !== null || filter.to !== null;
+}
+
+export function isAmountFilterActive(filter: AmountRangeFilter): boolean {
+  return filter.from !== null || filter.to !== null;
+}
+
+/**
+ * Проверяет стоимость (в копейках) на попадание в диапазон, заданный в рублях.
+ * `null` проходит только при неактивном фильтре.
+ */
+export function matchesAmountFilter(value: number | null, filter: AmountRangeFilter): boolean {
+  if (!isAmountFilterActive(filter)) {
+    return true;
+  }
+
+  if (value === null) {
+    return false;
+  }
+
+  const from = filter.from === null ? null : filter.from * 100;
+  const to = filter.to === null ? null : filter.to * 100;
+
+  return (from === null || value >= from) && (to === null || value <= to);
 }
 
 /** Локальная дата → `YYYY-MM-DD` (без сдвига часового пояса). */
@@ -133,6 +166,10 @@ export function filterOrders(orders: readonly Order[], filter: OrdersFilter): re
     }
 
     if (filter.statuses.length > 0 && !filter.statuses.includes(order.status)) {
+      return false;
+    }
+
+    if (!matchesAmountFilter(order.totalAmountKopecks, filter.amount)) {
       return false;
     }
 

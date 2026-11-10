@@ -20,16 +20,18 @@ export interface FilterOption {
   imports: [FormsModule, NzCheckboxModule, NzEmptyModule, NzIconModule, NzInputModule, NzTagModule],
   template: `
     <div class="checkbox-filter">
-      <div class="checkbox-filter__search">
-        <nz-icon nzType="search" />
-        <input
-          nz-input
-          type="search"
-          [placeholder]="searchPlaceholder()"
-          [ngModel]="query()"
-          (ngModelChange)="query.set($event)"
-        />
-      </div>
+      @if (searchable()) {
+        <div class="checkbox-filter__search">
+          <nz-icon nzType="search" />
+          <input
+            nz-input
+            type="search"
+            [placeholder]="searchPlaceholder()"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+          />
+        </div>
+      }
 
       @if (selectedOptions().length > 0) {
         <div class="checkbox-filter__chips">
@@ -152,6 +154,8 @@ export class OrdersCheckboxFilterComponent {
   readonly options = input.required<readonly FilterOption[]>();
   readonly selected = input.required<readonly string[]>();
   readonly searchPlaceholder = input('Поиск');
+  /** Для коротких списков поиск можно отключить, чтобы не дублировать поле. */
+  readonly searchable = input(true);
 
   readonly selectedChange = output<readonly string[]>();
 

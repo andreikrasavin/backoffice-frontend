@@ -1,4 +1,4 @@
-import { Order, ORDER_STATUS_LABELS, ORDER_TYPE_LABELS } from '@features/orders/models';
+import { Order, ORDER_STATUS_LABELS } from '@features/orders/models';
 import { downloadCsv } from '@shared/utils';
 
 const HEADER: readonly string[] = [
@@ -8,8 +8,8 @@ const HEADER: readonly string[] = [
   'Менеджер',
   'Дата оформления',
   'Дата реализации',
-  'Тип',
   'Статус',
+  'Стоимость',
 ];
 
 function pad(value: number): string {
@@ -34,8 +34,9 @@ function toRow(order: Order): readonly string[] {
     order.manager.fullName,
     formatDay(order.createdAt),
     formatDay(order.shippedAt),
-    ORDER_TYPE_LABELS[order.type],
     ORDER_STATUS_LABELS[order.status],
+    // Целые рубли без разделителей — так колонку проще обрабатывать в таблицах.
+    String(Math.round(order.totalAmountKopecks / 100)),
   ];
 }
 

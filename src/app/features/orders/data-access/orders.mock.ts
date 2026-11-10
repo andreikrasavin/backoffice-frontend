@@ -48,6 +48,20 @@ function toIsoDate(date: Date): string {
   return date.toISOString();
 }
 
+const MIN_AMOUNT_KOPECKS = 15_000 * 100;
+const AMOUNT_SPREAD_KOPECKS = 1_350_000 * 100;
+
+/**
+ * Детерминированная сумма заказа: 15 000–1 365 000 ₽.
+ * У рекламаций сумма ниже — как правило, это возврат или компенсация.
+ */
+function createAmountKopecks(index: number, type: OrderType): number {
+  const mixed = (index * 7_654_321 + 1_234_567) % AMOUNT_SPREAD_KOPECKS;
+  const amount = MIN_AMOUNT_KOPECKS + mixed;
+
+  return type === 'claim' ? Math.round(amount * 0.6) : amount;
+}
+
 function createOrders(count: number): readonly Order[] {
   const start = Date.UTC(2025, 0, 6, 9, 0, 0);
   const day = 24 * 60 * 60 * 1000;
@@ -71,6 +85,7 @@ function createOrders(count: number): readonly Order[] {
       shippedAt,
       type,
       status,
+      totalAmountKopecks: createAmountKopecks(index, type),
     };
   });
 }

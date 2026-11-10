@@ -33,6 +33,8 @@ export interface Order {
   shippedAt: string | null;
   type: OrderType;
   status: OrderStatus;
+  /** Стоимость заказа в копейках: целое число, чтобы обойтись без плавающей точки. */
+  totalAmountKopecks: number;
 }
 
 export const ORDER_TYPE_LABELS: Record<OrderType, string> = {
