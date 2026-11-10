@@ -1,0 +1,128 @@
+<form nz-form nzLayout="vertical" class="area-form" [formGroup]="form">
+  <div class="area-form__rows" formArrayName="rows">
+    @for (row of rows.controls; track row; let index = $index) {
+      <nz-card nzSize="small" class="area-form__row" [formGroupName]="index">
+        <div class="area-form__grid">
+          <nz-form-item class="area-form__field area-form__field--master">
+            <nz-form-label nzRequired>Мастер</nz-form-label>
+            <nz-form-control nzErrorTip="Выберите мастера">
+              <nz-select
+                formControlName="master"
+                nzPlaceHolder="Выберите мастера"
+                nzShowSearch
+                [nzDisabled]="saving()"
+              >
+                @for (master of masters; track master) {
+                  <nz-option [nzValue]="master" [nzLabel]="master" />
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item class="area-form__field area-form__field--operation">
+            <nz-form-label nzRequired>Операция</nz-form-label>
+            <nz-form-control nzErrorTip="Выберите операцию">
+              <nz-select
+                formControlName="operation"
+                nzPlaceHolder="Выберите операцию"
+                nzShowSearch
+                [nzDisabled]="saving()"
+              >
+                @for (operation of operations; track operation) {
+                  <nz-option [nzValue]="operation" [nzLabel]="operation" />
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item class="area-form__field area-form__field--material">
+            <nz-form-label nzRequired>Материал</nz-form-label>
+            <nz-form-control nzErrorTip="Выберите материал">
+              <nz-select
+                formControlName="materialId"
+                nzPlaceHolder="Выберите материал"
+                nzShowSearch
+                [nzDisabled]="saving()"
+              >
+                @for (material of materials; track material.id) {
+                  <nz-option [nzValue]="material.id" [nzLabel]="material.name" />
+                }
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item class="area-form__field area-form__field--unit">
+            <nz-form-label>Ед. изм.</nz-form-label>
+            <nz-form-control>
+              <span class="area-form__unit">{{ materialUnit(row) }}</span>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item class="area-form__field area-form__field--quantity">
+            <nz-form-label nzRequired>Количество</nz-form-label>
+            <nz-form-control nzErrorTip="Укажите количество больше 0">
+              <nz-input-number
+                formControlName="quantity"
+                [nzMin]="0.01"
+                [nzStep]="0.5"
+                [nzPrecision]="2"
+                [nzDisabled]="saving()"
+              />
+            </nz-form-control>
+          </nz-form-item>
+
+          <div class="area-form__row-actions">
+            <button
+              nz-button
+              nzType="text"
+              nzDanger
+              type="button"
+              nz-tooltip
+              nzTooltipTitle="Удалить операцию"
+              aria-label="Удалить операцию"
+              [disabled]="saving()"
+              (click)="removeRow(index)"
+            >
+              <nz-icon nzType="delete" />
+            </button>
+          </div>
+        </div>
+      </nz-card>
+    }
+  </div>
+
+  @if (rows.length === 0) {
+    <nz-empty class="area-form__empty" nzNotFoundContent="Операции не добавлены" />
+  }
+
+  @if (rowsError()) {
+    <p class="area-form__rows-error">Добавьте хотя бы одну операцию</p>
+  }
+
+  <button
+    nz-button
+    nzType="dashed"
+    nzBlock
+    type="button"
+    class="area-form__add"
+    [disabled]="saving()"
+    (click)="addRow()"
+  >
+    <nz-icon nzType="plus" />
+    Добавить операцию
+  </button>
+
+  <footer class="area-form__footer">
+    <button nz-button type="button" [disabled]="saving()" (click)="cancel()">Отмена</button>
+    <button
+      nz-button
+      nzType="primary"
+      type="button"
+      [nzLoading]="saving()"
+      [disabled]="saving()"
+      (click)="save()"
+    >
+      Сохранить
+    </button>
+  </footer>
+</form>

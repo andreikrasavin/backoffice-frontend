@@ -1,6 +1,11 @@
 import { Injectable, computed, inject, resource, signal } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { PRODUCTION_AREA_ORDER, ProductionArea, ProductionAreaType } from '@features/orders/models';
+import {
+  PRODUCTION_AREA_ORDER,
+  ProductionArea,
+  ProductionAreaType,
+  ProductionOperation,
+} from '@features/orders/models';
 import { OrdersService } from './orders.service';
 import { ProductionAreasService } from './production-areas.service';
 
@@ -46,6 +51,7 @@ export class OrderDetailsStore {
   readonly addingArea = signal(false);
   readonly removingAreaId = signal<string | null>(null);
   readonly clearingAreaId = signal<string | null>(null);
+  readonly updatingAreaId = signal<string | null>(null);
 
   readonly sortedAreas = computed<readonly ProductionArea[]>(() =>
     [...this.areas()].sort(
@@ -135,6 +141,30 @@ export class OrderDetailsStore {
       this.message.error('Не удалось очистить участок');
     } finally {
       this.clearingAreaId.set(null);
+    }
+  }
+
+  async updateArea(areaId: string, operations: ProductionOperation[]): Promise<boolean> {
+    const orderId = this.currentId();
+
+    if (!orderId || this.updatingAreaId()) {
+      return false;
+    }
+
+    this.updatingAreaId.set(areaId);
+
+    try {
+      const updated = await this.productionAreasService.updateArea(orderId, areaId, { operations });
+      this.areasOverride.set(this.areas().map((area) => (area.id === areaId ? updated : area)));
+      this.message.success('Участок сохранён');
+
+      return true;
+    } catch {
+      this.message.error('Не удалось сохранить участок');
+
+      return false;
+    } finally {
+      this.updatingAreaId.set(null);
     }
   }
 

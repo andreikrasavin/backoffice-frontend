@@ -1,0 +1,106 @@
+.area-form {
+  display: block;
+}
+
+.area-form__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.area-form__row {
+  display: block;
+
+  ::ng-deep .ant-card-body {
+    padding: 12px;
+  }
+}
+
+.area-form__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px 12px;
+  align-items: start;
+}
+
+.area-form__field {
+  margin-bottom: 0;
+}
+
+.area-form__field nz-input-number {
+  width: 100%;
+}
+
+.area-form__field--master {
+  grid-column: span 6;
+}
+
+.area-form__field--operation {
+  grid-column: span 6;
+}
+
+.area-form__field--material {
+  grid-column: span 4;
+}
+
+.area-form__field--unit {
+  grid-column: span 2;
+}
+
+.area-form__field--quantity {
+  grid-column: span 4;
+}
+
+.area-form__row-actions {
+  display: flex;
+  grid-column: span 2;
+  align-self: end;
+  justify-content: flex-end;
+  padding-bottom: 4px;
+}
+
+.area-form__unit {
+  display: inline-block;
+  min-height: 32px;
+  line-height: 32px;
+  color: var(--app-color-text-secondary);
+}
+
+.area-form__empty {
+  display: block;
+  margin: 8px 0 16px;
+}
+
+.area-form__rows-error {
+  margin: 0 0 8px;
+  color: var(--app-color-danger);
+  font-size: 12px;
+}
+
+.area-form__add {
+  margin-top: 16px;
+}
+
+.area-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-color-border);
+}
+
+@media (width < 640px) {
+  .area-form__field--master,
+  .area-form__field--operation,
+  .area-form__field--material,
+  .area-form__field--unit,
+  .area-form__field--quantity {
+    grid-column: span 12;
+  }
+
+  .area-form__row-actions {
+    grid-column: span 12;
+    justify-content: flex-start;
+  }
+}

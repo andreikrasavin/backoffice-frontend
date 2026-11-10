@@ -60,7 +60,7 @@ export class ProductionAreasService {
   async updateArea(
     orderId: string,
     areaId: string,
-    patch: Partial<Pick<ProductionArea, 'type'>>,
+    patch: { operations: ProductionOperation[] },
   ): Promise<ProductionArea> {
     // TODO: replace with HttpClient
     await delay(getRandomDelay());
@@ -71,7 +71,7 @@ export class ProductionAreasService {
       throw new Error(`Production area ${areaId} not found`);
     }
 
-    Object.assign(area, patch);
+    area.operations = patch.operations.map((operation) => ({ ...operation }));
 
     return this.clone(area);
   }

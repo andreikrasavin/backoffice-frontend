@@ -1,16 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewContainerRef,
+  computed,
+  inject,
+} from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzDropdownModule } from 'ng-zorro-antd/dropdown';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
-import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
-import { PRODUCTION_AREA_LABELS, ProductionArea } from '@features/orders/models';
+import {
+  PRODUCTION_AREA_LABELS,
+  ProductionArea,
+  ProductionAreaType,
+} from '@features/orders/models';
 import { OrderDetailsStore } from '@features/orders/data-access';
 import { OrderDetailsSkeletonComponent } from '@features/orders/components/order-details-skeleton/order-details-skeleton.component';
 import { ProductionAreaCardComponent } from '@features/orders/components/production-area-card/production-area-card.component';
+import {
+  ProductionAreaFormModalComponent,
+  ProductionAreaFormModalData,
+} from '@features/orders/components/production-area-form-modal/production-area-form-modal.component';
 
 @Component({
   selector: 'bf-production-areas',
@@ -31,7 +45,9 @@ import { ProductionAreaCardComponent } from '@features/orders/components/product
 })
 export class ProductionAreasComponent {
   protected readonly store = inject(OrderDetailsStore);
-  private readonly message = inject(NzMessageService);
+
+  private readonly modal = inject(NzModalService);
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   protected readonly labels = PRODUCTION_AREA_LABELS;
 
@@ -47,9 +63,35 @@ export class ProductionAreasComponent {
     return 'Все участки уже добавлены';
   });
 
+  protected async onAdd(type: ProductionAreaType): Promise<void> {
+    if (this.store.addingArea()) {
+      return;
+    }
+
+    await this.store.addArea(type);
+
+    const area = this.store.areas().find((item) => item.type === type);
+
+    if (area) {
+      this.openAreaForm(area);
+    }
+  }
+
   protected onEdit(area: ProductionArea): void {
-    this.message.info(
-      `Редактирование участка «${PRODUCTION_AREA_LABELS[area.type]}» будет добавлено позже`,
-    );
+    this.openAreaForm(area);
+  }
+
+  private openAreaForm(area: ProductionArea): void {
+    this.modal.create<ProductionAreaFormModalComponent, ProductionAreaFormModalData>({
+      nzTitle: PRODUCTION_AREA_LABELS[area.type],
+      nzContent: ProductionAreaFormModalComponent,
+      nzData: { area },
+      nzFooter: null,
+      nzWidth: 'min(800px, 90vw)',
+      nzMaskClosable: false,
+      nzKeyboard: true,
+      nzViewContainerRef: this.viewContainerRef,
+      nzOnCancel: (component) => !component.isSaving(),
+    });
   }
 }
