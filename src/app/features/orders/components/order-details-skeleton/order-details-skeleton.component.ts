@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+
+export type OrderDetailsSkeletonSection = 'header' | 'main' | 'sidebar';
 
 @Component({
   selector: 'bf-order-details-skeleton',
@@ -9,6 +18,8 @@ import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderDetailsSkeletonComponent {
+  readonly section = input<OrderDetailsSkeletonSection>('main');
+
   private readonly reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   protected readonly reducedMotion = signal(this.reducedMotionQuery.matches);

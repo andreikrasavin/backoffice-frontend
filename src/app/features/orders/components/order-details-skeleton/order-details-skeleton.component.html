@@ -1,20 +1,24 @@
-<div class="skeleton" aria-busy="true" aria-live="polite">
-  <div class="skeleton__content" aria-hidden="true">
-    <header class="skeleton__header">
-      <div class="skeleton__identity">
-        <div class="skeleton__title-row">
-          <span class="skeleton__bar skeleton__bar--title"></span>
-          <span class="skeleton__bar skeleton__bar--tag"></span>
-          <span class="skeleton__bar skeleton__bar--status"></span>
+@switch (section()) {
+  @case ('header') {
+    <div class="skeleton" aria-busy="true" aria-live="polite">
+      <header class="skeleton__header" aria-hidden="true">
+        <div class="skeleton__identity">
+          <div class="skeleton__title-row">
+            <span class="skeleton__bar skeleton__bar--title"></span>
+            <span class="skeleton__bar skeleton__bar--tag"></span>
+            <span class="skeleton__bar skeleton__bar--status"></span>
+          </div>
+          <span class="skeleton__bar skeleton__bar--audit"></span>
         </div>
-        <span class="skeleton__bar skeleton__bar--audit"></span>
-      </div>
 
-      <span class="skeleton__bar skeleton__bar--button"></span>
-    </header>
+        <span class="skeleton__bar skeleton__bar--button"></span>
+      </header>
+    </div>
+  }
 
-    <div class="skeleton__grid">
-      <div class="skeleton__card skeleton__main">
+  @case ('main') {
+    <div class="skeleton" aria-busy="true" aria-live="polite">
+      <div class="skeleton__card skeleton__main" aria-hidden="true">
         <span class="skeleton__bar skeleton__bar--card-title"></span>
 
         <div class="skeleton__fields">
@@ -26,8 +30,12 @@
           }
         </div>
       </div>
+    </div>
+  }
 
-      <div class="skeleton__card skeleton__sidebar">
+  @case ('sidebar') {
+    <div class="skeleton" aria-busy="true">
+      <div class="skeleton__card skeleton__sidebar" aria-hidden="true">
         <span class="skeleton__bar skeleton__bar--card-title"></span>
 
         <div class="skeleton__sidebar-body">
@@ -39,5 +47,5 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
+  }
+}

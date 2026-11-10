@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Order } from '@features/orders/models';
+import { delay, getRandomDelay } from '@shared/utils';
 import { MOCK_ORDERS } from './orders.mock';
 
 @Injectable()
@@ -15,6 +16,8 @@ export class OrdersService {
 
   async getOrderById(id: string): Promise<Order | null> {
     // TODO: replace with HttpClient
+    // TODO: remove artificial delay when real API is connected
+    await delay(getRandomDelay());
     const order = this.state().find((item) => item.id === id);
 
     return order ?? null;

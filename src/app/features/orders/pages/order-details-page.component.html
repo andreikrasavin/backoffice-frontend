@@ -1,5 +1,15 @@
-@if (order(); as order) {
-  <div class="order-details">
+<div class="order-details">
+  @if (isOrderLoading()) {
+    <bf-order-details-skeleton section="header" />
+  } @else if (orderError()) {
+    <div class="order-details__state">
+      <nz-empty nzNotFoundContent="Не удалось загрузить заказ"></nz-empty>
+      <button nz-button type="button" (click)="retryOrder()">
+        <nz-icon nzType="reload" />
+        Повторить
+      </button>
+    </div>
+  } @else if (order(); as order) {
     <header class="order-details__header">
       <div class="order-details__identity">
         <div class="order-details__title-row">
@@ -47,95 +57,115 @@
         Назад к списку
       </button>
     </header>
+  } @else {
+    <div class="order-details__state">
+      <nz-empty nzNotFoundContent="Заказ не найден"></nz-empty>
+      <a nz-button routerLink="/orders">Вернуться к списку</a>
+    </div>
+  }
 
+  @if (isOrderLoading() || (!orderError() && order())) {
     <div class="order-details__grid">
       <main class="order-details__main">
-        <nz-card nzTitle="Информация о заказе">
-          <dl class="order-details__fields">
-            <div class="order-details__field">
-              <dt>Заказчик</dt>
-              <dd>
-                <span>{{ order.customer.name }}</span>
-                <span class="order-details__muted">{{ order.customer.address }}</span>
-              </dd>
-            </div>
+        @if (isOrderLoading()) {
+          <bf-order-details-skeleton section="main" />
+        } @else if (order(); as order) {
+          <nz-card nzTitle="Информация о заказе">
+            <dl class="order-details__fields">
+              <div class="order-details__field">
+                <dt>Заказчик</dt>
+                <dd>
+                  <span>{{ order.customer.name }}</span>
+                  <span class="order-details__muted">{{ order.customer.address }}</span>
+                </dd>
+              </div>
 
-            <div class="order-details__field">
-              <dt>Менеджер</dt>
-              <dd>
-                <span class="order-details__manager">
-                  <nz-avatar nzSize="small" [nzText]="initials(order.manager.fullName)"></nz-avatar>
-                  <span>{{ order.manager.fullName }}</span>
-                </span>
-              </dd>
-            </div>
+              <div class="order-details__field">
+                <dt>Менеджер</dt>
+                <dd>
+                  <span class="order-details__manager">
+                    <nz-avatar
+                      nzSize="small"
+                      [nzText]="initials(order.manager.fullName)"
+                    ></nz-avatar>
+                    <span>{{ order.manager.fullName }}</span>
+                  </span>
+                </dd>
+              </div>
 
-            <div class="order-details__field">
-              <dt>Дата оформления</dt>
-              <dd>{{ order.createdAt | date: 'dd.MM.yyyy' }}</dd>
-            </div>
+              <div class="order-details__field">
+                <dt>Дата оформления</dt>
+                <dd>{{ order.createdAt | date: 'dd.MM.yyyy' }}</dd>
+              </div>
 
-            <div class="order-details__field">
-              <dt>Дата реализации</dt>
-              <dd>
-                @if (order.shippedAt) {
-                  {{ order.shippedAt | date: 'dd.MM.yyyy' }}
-                } @else {
-                  —
-                }
-              </dd>
-            </div>
+              <div class="order-details__field">
+                <dt>Дата реализации</dt>
+                <dd>
+                  @if (order.shippedAt) {
+                    {{ order.shippedAt | date: 'dd.MM.yyyy' }}
+                  } @else {
+                    —
+                  }
+                </dd>
+              </div>
 
-            <div class="order-details__field">
-              <dt>Тип</dt>
-              <dd>{{ typeLabels[order.type] }}</dd>
-            </div>
+              <div class="order-details__field">
+                <dt>Тип</dt>
+                <dd>{{ typeLabels[order.type] }}</dd>
+              </div>
 
-            <div class="order-details__field">
-              <dt>Статус</dt>
-              <dd>
-                <nz-tag [nzColor]="statusColors[order.status]">{{
-                  statusLabels[order.status]
-                }}</nz-tag>
-              </dd>
-            </div>
+              <div class="order-details__field">
+                <dt>Статус</dt>
+                <dd>
+                  <nz-tag [nzColor]="statusColors[order.status]">{{
+                    statusLabels[order.status]
+                  }}</nz-tag>
+                </dd>
+              </div>
 
-            <div class="order-details__field">
-              <dt>Стоимость</dt>
-              <dd class="order-details__amount">{{ order.totalAmountKopecks | bfMoneyRub }}</dd>
-            </div>
-          </dl>
+              <div class="order-details__field">
+                <dt>Стоимость</dt>
+                <dd class="order-details__amount">{{ order.totalAmountKopecks | bfMoneyRub }}</dd>
+              </div>
+            </dl>
 
-          @if (order.description) {
-            <section class="order-details__description">
-              <h2 class="order-details__description-title">Описание</h2>
-              <p class="order-details__description-text">{{ order.description }}</p>
-            </section>
-          }
-        </nz-card>
+            @if (order.description) {
+              <section class="order-details__description">
+                <h2 class="order-details__description-title">Описание</h2>
+                <p class="order-details__description-text">{{ order.description }}</p>
+              </section>
+            }
+          </nz-card>
+        }
       </main>
 
       <aside class="order-details__sidebar">
-        <nz-card nzTitle="Участки">
-          <!-- TODO: production areas -->
-          <nz-empty nzNotFoundContent="Информация об участках будет добавлена позже"></nz-empty>
-        </nz-card>
+        @if (isAreasLoading()) {
+          <bf-order-details-skeleton section="sidebar" />
+        } @else if (areasError()) {
+          <nz-card nzTitle="Участки">
+            <div class="order-details__areas-error">
+              <span>Не удалось загрузить участки</span>
+              <button nz-button nzSize="small" type="button" (click)="retryAreas()">
+                <nz-icon nzType="reload" />
+                Повторить
+              </button>
+            </div>
+          </nz-card>
+        } @else {
+          <nz-card nzTitle="Участки">
+            @if (areas().length === 0) {
+              <nz-empty nzNotFoundContent="Информация об участках будет добавлена позже"></nz-empty>
+            } @else {
+              <ul class="order-details__areas">
+                @for (area of areas(); track area.id) {
+                  <li>{{ area.name }}</li>
+                }
+              </ul>
+            }
+          </nz-card>
+        }
       </aside>
     </div>
-  </div>
-} @else if (isLoading()) {
-  <bf-order-details-skeleton />
-} @else if (loadError()) {
-  <div class="order-details__state">
-    <nz-empty nzNotFoundContent="Не удалось загрузить заказ"></nz-empty>
-    <button nz-button type="button" (click)="retry()">
-      <nz-icon nzType="reload" />
-      Повторить
-    </button>
-  </div>
-} @else {
-  <div class="order-details__state">
-    <nz-empty nzNotFoundContent="Заказ не найден"></nz-empty>
-    <a nz-button routerLink="/orders">Вернуться к списку</a>
-  </div>
-}
+  }
+</div>

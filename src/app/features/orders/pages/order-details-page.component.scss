@@ -125,6 +125,25 @@
   white-space: pre-line;
 }
 
+.order-details__areas {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--app-color-text);
+}
+
+.order-details__areas li + li {
+  margin-top: 6px;
+}
+
+.order-details__areas-error {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
+}
+
 .order-details__state {
   display: flex;
   flex-direction: column;

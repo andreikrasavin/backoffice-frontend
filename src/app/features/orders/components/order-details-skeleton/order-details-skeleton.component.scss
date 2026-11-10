@@ -1,17 +1,9 @@
-@use '../../order-details-layout' as layout;
-
 :host {
   display: block;
 }
 
 .skeleton {
   display: block;
-}
-
-.skeleton__content {
-  display: flex;
-  flex-direction: column;
-  gap: layout.$details-gap;
 }
 
 .skeleton__header {
@@ -32,10 +24,6 @@
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-}
-
-.skeleton__grid {
-  @include layout.details-grid;
 }
 
 .skeleton__card {

@@ -14,8 +14,9 @@ import {
   ORDER_STATUS_COLORS,
   ORDER_STATUS_LABELS,
   ORDER_TYPE_LABELS,
+  ProductionArea,
 } from '@features/orders/models';
-import { OrdersService } from '@features/orders/data-access';
+import { OrdersService, ProductionAreasService } from '@features/orders/data-access';
 import { OrderDetailsSkeletonComponent } from '@features/orders/components';
 import { MoneyRubPipe } from '@shared/pipes';
 import { getInitials } from '@shared/utils';
@@ -42,6 +43,7 @@ import { getInitials } from '@shared/utils';
 export class OrderDetailsPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly ordersService = inject(OrdersService);
+  private readonly productionAreasService = inject(ProductionAreasService);
 
   protected readonly statusLabels = ORDER_STATUS_LABELS;
   protected readonly statusColors = ORDER_STATUS_COLORS;
@@ -51,7 +53,7 @@ export class OrderDetailsPageComponent {
 
   private readonly orderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    { initialValue: '' },
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
 
   private readonly orderResource = resource({
@@ -60,11 +62,27 @@ export class OrderDetailsPageComponent {
       params ? this.ordersService.getOrderById(params) : Promise.resolve(null),
   });
 
-  protected readonly order = computed(() => this.orderResource.value() ?? null);
-  protected readonly isLoading = this.orderResource.isLoading;
-  protected readonly loadError = this.orderResource.error;
+  private readonly areasResource = resource({
+    params: () => this.orderId(),
+    loader: ({ params }) =>
+      params
+        ? this.productionAreasService.getAreasByOrderId(params)
+        : Promise.resolve<ProductionArea[]>([]),
+  });
 
-  protected retry(): void {
+  protected readonly order = computed(() => this.orderResource.value() ?? null);
+  protected readonly isOrderLoading = this.orderResource.isLoading;
+  protected readonly orderError = this.orderResource.error;
+
+  protected readonly areas = computed(() => this.areasResource.value() ?? []);
+  protected readonly isAreasLoading = this.areasResource.isLoading;
+  protected readonly areasError = this.areasResource.error;
+
+  protected retryOrder(): void {
     void this.orderResource.reload();
+  }
+
+  protected retryAreas(): void {
+    void this.areasResource.reload();
   }
 }
