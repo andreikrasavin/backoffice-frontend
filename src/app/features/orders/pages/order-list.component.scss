@@ -100,6 +100,20 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  min-width: 0;
+}
+
+.orders-table__manager nz-avatar {
+  flex-shrink: 0;
+  background: var(--app-color-primary);
+  color: #fff;
+}
+
+.orders-table__manager-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .orders-table__actions-head {

@@ -41,6 +41,7 @@ import {
   OrdersFilterPanelComponent,
 } from '@features/orders/components';
 import { MoneyRubPipe } from '@shared/pipes';
+import { getInitials } from '@shared/utils';
 
 const PAGE_SIZE_OPTIONS: number[] = [25, 50, 100];
 const DEFAULT_PAGE_SIZE = 50;
@@ -449,12 +450,7 @@ export class OrderListComponent {
   }
 
   initials(fullName: string): string {
-    return fullName
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part.charAt(0))
-      .join('')
-      .toUpperCase();
+    return getInitials(fullName);
   }
 
   private deleteOrders(ids: ReadonlySet<string>): void {

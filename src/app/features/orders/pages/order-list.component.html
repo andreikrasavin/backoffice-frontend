@@ -197,7 +197,9 @@
           <td>
             <div class="orders-table__manager">
               <nz-avatar nzSize="small" [nzText]="initials(order.manager.fullName)"></nz-avatar>
-              <span>{{ order.manager.fullName }}</span>
+              <span class="orders-table__manager-name" [title]="order.manager.fullName">{{
+                order.manager.fullName
+              }}</span>
             </div>
           </td>
 
