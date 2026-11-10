@@ -1,81 +1,115 @@
-# AGENTS.md
+# AGENTS.md — правила проекта
 
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+Backoffice мебельной фабрики: заказы, клиенты, продукты, производство.
+Стек: Angular 22 (standalone, signals, zoneless), TypeScript strict, SCSS, ng-zorro-antd.
 
-## Project Context
+## Команды
 
-This is an Angular back-office application for managing orders of a small furniture factory (`backoffice-frontend`).
+```bash
+npm start          # dev-сервер (development-конфигурация)
+npm run build      # production-сборка
+npm run lint       # ESLint (angular-eslint)
+npm run format     # Prettier для src
+npm run format:check
+```
 
-- **UI component library:** `ng-zorro-antd` is the primary UI library. Use its components (`nz-table`, `nz-form`, `nz-modal`, `nz-drawer`, `nz-button`, `nz-message`, `nz-notification`, `nz-date-picker`, `nz-layout`, etc.) instead of custom UI implementations or any other UI library.
-- **Testing:** Automated tests are NOT used in this project. Do NOT create `*.spec.ts` files, do NOT configure Karma/Jasmine/Vitest, and do NOT suggest adding tests. Verify your changes by ensuring `ng build` succeeds and by reasoning through the logic manually.
-- **Key commands:** `npm install`, `ng serve`, `ng build`, `ng lint`.
+Тестов в проекте нет, тестовый раннер не добавляем без отдельного запроса.
 
-## TypeScript Best Practices
+# Workflow для AI-агента
 
-- Use strict type checking
-- Prefer type inference when the type is obvious
-- Avoid the `any` type; use `unknown` when type is uncertain
+- Сначала диагностика. Изучить текущий код и составить отчёт
+  «как сейчас → что меняем → что может сломаться». Не менять файлы до отчёта.
 
-## Angular Best Practices
+- Правки — по одной задаче за раз. После каждой — npm run build и npm run lint.
+  Если падает — не двигаться дальше, пока не согласовано.
 
-- Always use standalone components over NgModules
-- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
-- Do NOT set `changeDetection: ChangeDetectionStrategy.OnPush` explicitly. `OnPush` is the default in Angular v22+.
-- Use signals for state management
-- Implement lazy loading for feature routes
-- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
-- Use `NgOptimizedImage` for all static images.
-  - `NgOptimizedImage` does not work for inline base64 images.
-  - For images rendered inside `ng-zorro-antd` components (e.g. `nz-avatar`, `nz-card`, `nz-image`), follow the component's own image API.
+- Каждое изменение — отдельным git-коммитом в стиле Angular Commit Conventions.
 
-## Accessibility Requirements
+- Не трогать то, что не входит в задачу. Не переписывать чужие фичи, лейаут, другие страницы.
 
-- It MUST pass all AXE checks.
-- It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
-- Prefer `ng-zorro-antd` components — most of them already ship with built-in ARIA attributes and keyboard support.
+- Не добавлять зависимости без согласования. Иконки, датапикеры, dropdown — только из NgZorro.
 
-## Components
+## Архитектура
 
-- Keep components small and focused on a single responsibility
-- Use `input()` and `output()` functions instead of decorators
-- Use `model()` for two-way bound properties with `[(prop)]` syntax instead of pairing `input()` with `output()`
-- Use `computed()` for derived state
-- Use `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
-- Prefer inline templates for small components
-- Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
-- When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
-- Do NOT use `ngClass`, use `class` bindings instead
-- Do NOT use `ngStyle`, use `style` bindings instead
-- Do NOT import `CommonModule`, import only the directives and pipes the template uses, such as `AsyncPipe` or `DatePipe`
-- When using external templates/styles, use paths relative to the component TS file.
+```
+src/app/
+├── core/       # синглтоны: auth, http, api, config, models, theme
+├── shared/     # переиспользуемое: ui, directives, pipes, utils
+├── features/   # вертикальные срезы: dashboard, orders
+├── layout/     # app-shell, header (logo, main-nav, header-actions)
+├── app.routes.ts
+├── app.config.ts
+└── app.ts
+```
 
-### ng-zorro-antd usage
+- Зависимости только в одну сторону: `features → shared`, `features → core`, `app → все`.
+  `shared` не импортирует `core` и `features`; `core` не импортирует `features`.
+- Каждая фича lazy-загружается через `loadChildren` и `*.routes.ts`.
+- Доступ к данным — только через `data-access` фичи. Компоненты не используют `HttpClient`.
+- `core`-сервисы регистрируются через `provideX()` в `app.config.ts`, без `providedIn: 'root'`.
+- Состояние — signals (`signal`/`computed`) в сервисах `data-access`; NgRx не используется.
+- Публичный API папки — `index.ts`. Импорты только через алиасы:
+  `@core/*`, `@shared/*`, `@features/*`, `@layout/*`, `@env/*`.
+  Импорты в обход барелей (`@core/config/app-config`) запрещены.
+- Фичевые сервисы скоупятся через `providers` в конфиге маршрута фичи.
 
-- Import `ng-zorro-antd` modules individually per component (its components are standalone); do NOT import a global `NgZorroAntdModule` barrel.
-- Use `nz-*` components for every interactive UI element: tables, forms, modals, drawers, notifications, date pickers, layout, navigation, popovers, tooltips.
-- Use `NzMessageService`, `NzNotificationService`, and `NzModalService` for user feedback and confirmations instead of custom solutions.
-- `ng-zorro-antd` form controls must be wired through Angular Reactive Forms (`FormGroup`, `FormControl`) or Signal Forms — do NOT mix them with Template-driven forms.
-- Do NOT override `ng-zorro-antd` styles globally. If customization is required, scope it to the component and prefer `ng-zorro-antd`'s theming mechanisms (LESS variables / CSS custom properties) over raw CSS overrides.
-- Do NOT introduce any other UI library (Angular Material, Bootstrap, PrimeNG, etc.) alongside `ng-zorro-antd`.
+## Лейаут и тема
 
-## State Management
+- Каркас — `layout/app-shell`: sticky-хэдер 64px (элементы выровнены по вертикали
+  по центру), `<main>` с `.app-container` (`max-width: 1440px`, `margin-inline: auto`,
+  отступы 24px / 16px на ≤768px). Футера нет.
+- Навигация — горизонтальное `nz-menu` в хэдере; на ширине < 768px она сворачивается
+  в бургер с `nz-dropdown`.
+- `shared/ui` содержит только dumb-компоненты: они получают данные через `input()`
+  и сообщают о действиях через `output()`. Сервисы (`ThemeService`, `UserService`,
+  `AuthService`) инжектятся в `layout/header/header-actions`, чтобы `shared` не зависел
+  от `core`.
+- Тема — `core/theme/theme.service.ts`: сигнал `light | dark`, `localStorage` (`bf-theme`),
+  атрибут `data-theme` на `<html>` и подключение `ng-zorro-antd.dark.min.css` из ассетов.
+  Тема применяется до первого рендера inline-скриптом в `index.html`.
+- NgZorro-стили подключаются по компонентам в `angular.json`; тёмная тема — отдельный
+  CSS-файл, который копируется в `/assets/ng-zorro-antd/`.
 
-- Use signals for local component state
-- Use `computed()` for derived state
-- Keep state transformations pure and predictable
-- Do NOT use `mutate` on signals, use `update` or `set` instead
-- For server data, prefer `HttpClient` + signals (`httpResource` / `resource`) unless an explicit pattern is requested.
+## Именование
 
-## Templates
+- Файлы — `kebab-case` с суффиксом: `orders.service.ts`, `auth.guard.ts`, `currency.pipe.ts`.
+- Классы — `PascalCase`.
+- Селекторы компонентов — префикс `bf-` (`bf-order-list`), директивы — `bfCamelCase`
+  (`bfAutofocus`), пайпы — `bfCamelCase` (`bfCurrency`). Префикс `bf` зафиксирован
+  осознанно (историческое имя проекта) и задан в `angular.json` → `prefix`.
+- Маршруты — `kebab-case`, вложенность через `children`.
 
-- Keep templates simple and avoid complex logic
-- Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Use the async pipe to handle observables
-- Do not assume globals like (`new Date()`) are available.
+## TypeScript
 
-## Services
+Включены `strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`,
+`noPropertyAccessFromIndexSignature`, `noImplicitReturns`, `noFallthroughCasesInSwitch`,
+`strictTemplates`, `strictInjectionParameters`.
 
-- Design services around a single responsibility
-- Use the `providedIn: 'root'` option for singleton services
-- Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
-- Use the `inject()` function instead of constructor injection
+Запрещено: `any`, `@ts-ignore`/`@ts-expect-error` без обоснования в комментарии.
+Отключать strict-флаги молча нельзя — только с планом исправления.
+
+## Окружения
+
+- `src/environments/environment.ts` — production (`production: true`).
+- `src/environments/environment.development.ts` — development (`production: false`),
+  подставляется через `fileReplacements` в `development`-конфигурации `angular.json`.
+
+## Коммиты
+
+Angular Commit Conventions, сообщение на английском, заголовок ≤ 72 символов:
+
+```
+<type>(<scope>): <subject>
+```
+
+Типы: `feat`, `fix`, `refactor`, `chore`, `docs`, `perf`, `build`.
+
+## Известные ограничения
+
+- Разделы клиентов, продуктов и производства ещё не реализованы; в навигации только
+  «Дашборд» и «Заказы».
+- `authGuard` и `AuthService` готовы, но guard не подключён: страницы `/login` нет.
+- `UserService` — заглушка с `null`: аватар показывает гостя, пункты «Профиль»
+  и «Настройки» пока ничего не открывают.
+- Уведомления статичны («Нет новых уведомлений»), счётчик непрочитанных не подключён.
+- `OrdersService`/`DashboardService` — заглушки без HTTP-запросов.
