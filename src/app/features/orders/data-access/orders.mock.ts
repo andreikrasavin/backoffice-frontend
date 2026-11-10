@@ -51,6 +51,26 @@ function toIsoDate(date: Date): string {
 const MIN_AMOUNT_KOPECKS = 15_000 * 100;
 const AMOUNT_SPREAD_KOPECKS = 1_350_000 * 100;
 
+const CLAIM_DESCRIPTIONS: readonly string[] = [
+  'Повреждена обивка при доставке',
+  'Не соответствует размер, указанный в заказе',
+  'Брак фурнитуры: не закрывается дверца',
+  'Царапина на столешнице',
+  'Комплектация неполная: отсутствуют ножки',
+  'Оттенок ткани отличается от образца',
+  'Скол на боковой панели шкафа',
+  'Перепутаны фасады: цвет не совпадает с заказом',
+  'Петли установлены с перекосом',
+  'Повреждена упаковка, часть деталей поцарапана',
+];
+
+const STANDARD_DESCRIPTIONS: readonly string[] = [
+  'Доставка после 18:00',
+  'Самовывоз со склада',
+  'Сборка на месте',
+  'Позвонить за час до доставки',
+];
+
 /**
  * Детерминированная сумма заказа: 15 000–1 365 000 ₽.
  * У рекламаций сумма ниже — как правило, это возврат или компенсация.
@@ -60,6 +80,19 @@ function createAmountKopecks(index: number, type: OrderType): number {
   const amount = MIN_AMOUNT_KOPECKS + mixed;
 
   return type === 'claim' ? Math.round(amount * 0.6) : amount;
+}
+
+function createDescription(index: number, type: OrderType): string | null {
+  if (type === 'claim') {
+    return CLAIM_DESCRIPTIONS[Math.floor(index / 7) % CLAIM_DESCRIPTIONS.length] ?? null;
+  }
+
+  // A few standard orders keep a neutral note: the field is common for all orders.
+  if (index % 29 === 2) {
+    return STANDARD_DESCRIPTIONS[index % STANDARD_DESCRIPTIONS.length] ?? null;
+  }
+
+  return null;
 }
 
 function createOrders(count: number): readonly Order[] {
@@ -85,6 +118,7 @@ function createOrders(count: number): readonly Order[] {
       shippedAt,
       type,
       status,
+      description: createDescription(index, type),
       totalAmountKopecks: createAmountKopecks(index, type),
     };
   });

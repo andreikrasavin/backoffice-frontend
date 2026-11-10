@@ -33,6 +33,11 @@ export interface Order {
   shippedAt: string | null;
   type: OrderType;
   status: OrderStatus;
+  /**
+   * Общее описание заказа: комментарий менеджера, условия доставки, детали
+   * рекламации и т.п. Не является атрибутом только рекламаций.
+   */
+  description: string | null;
   /** Стоимость заказа в копейках: целое число, чтобы обойтись без плавающей точки. */
   totalAmountKopecks: number;
 }

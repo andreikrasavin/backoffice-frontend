@@ -172,7 +172,19 @@
               }}</a>
 
               @if (order.type === 'claim') {
-                <span class="orders-table__muted orders-table__muted--danger">Рекламация</span>
+                @if (order.description) {
+                  <span
+                    class="orders-table__muted orders-table__muted--danger orders-table__claim-tooltip"
+                    tabindex="0"
+                    [attr.aria-label]="'Рекламация: ' + order.description"
+                    nz-tooltip
+                    [nzTooltipTitle]="order.description"
+                    nzTooltipPlacement="topLeft"
+                    >Рекламация</span
+                  >
+                } @else {
+                  <span class="orders-table__muted orders-table__muted--danger">Рекламация</span>
+                }
               }
             </div>
           </td>
