@@ -13,21 +13,7 @@
   </div>
 } @else {
   <div class="order-details">
-    <nz-breadcrumb class="order-details__breadcrumbs">
-      <nz-breadcrumb-item>
-        <a routerLink="/orders">Заказы</a>
-      </nz-breadcrumb-item>
-
-      <nz-breadcrumb-item>
-        @if (store.order(); as order) {
-          <a [routerLink]="['/orders', order.id, 'detail']">{{ order.number }}</a>
-        } @else {
-          <span class="order-details__crumb-placeholder" aria-hidden="true"></span>
-        }
-      </nz-breadcrumb-item>
-
-      <nz-breadcrumb-item>{{ activeTabTitle() }}</nz-breadcrumb-item>
-    </nz-breadcrumb>
+    <bf-breadcrumbs [items]="breadcrumbItems()" />
 
     @if (store.orderLoading()) {
       <bf-order-details-skeleton section="header" />

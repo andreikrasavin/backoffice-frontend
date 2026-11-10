@@ -8,19 +8,6 @@
   gap: 24px;
 }
 
-.order-details__breadcrumbs {
-  display: block;
-}
-
-.order-details__crumb-placeholder {
-  display: inline-block;
-  width: 120px;
-  height: 14px;
-  vertical-align: middle;
-  background: var(--app-color-border);
-  border-radius: 4px;
-}
-
 .order-details__header {
   display: flex;
   flex-wrap: wrap;

@@ -26,6 +26,10 @@ body {
   padding-inline: 24px;
 }
 
+.app-breadcrumbs nz-breadcrumb-item:last-child .ant-breadcrumb-separator {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .app-container {
     padding-inline: 16px;

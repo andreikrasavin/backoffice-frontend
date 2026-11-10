@@ -41,6 +41,7 @@ import {
   OrdersFilterPanelComponent,
 } from '@features/orders/components';
 import { MoneyRubPipe } from '@shared/pipes';
+import { BreadcrumbItem, BreadcrumbsComponent } from '@shared/ui';
 import { getInitials } from '@shared/utils';
 
 const PAGE_SIZE_OPTIONS: number[] = [25, 50, 100];
@@ -76,6 +77,7 @@ const STATUS_ORDER: readonly OrderStatus[] = [
     NzTagModule,
     NzTooltipModule,
     MoneyRubPipe,
+    BreadcrumbsComponent,
     OrdersAmountFilterComponent,
     OrdersCheckboxFilterComponent,
     OrdersDateFilterComponent,
@@ -93,6 +95,11 @@ export class OrderListComponent {
   private readonly router = inject(Router);
 
   readonly orders = this.ordersService.orders;
+
+  readonly breadcrumbs: readonly BreadcrumbItem[] = [
+    { label: 'Главная', link: '/dashboard' },
+    { label: 'Заказы' },
+  ];
 
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
   readonly statusLabels = ORDER_STATUS_LABELS;
