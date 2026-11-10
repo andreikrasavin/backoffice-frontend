@@ -98,9 +98,24 @@
   align-items: center;
 }
 
-.orders-table__actions {
-  display: flex;
-  gap: 2px;
+.orders-table__actions-head {
+  padding-inline: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.orders-table__actions-cell {
+  padding-inline: 6px;
+  text-align: center;
+}
+
+.orders-actions-menu {
+  min-width: 200px;
+}
+
+.orders-actions-menu__title {
+  color: var(--app-color-text-secondary);
+  font-size: 12px;
 }
 
 .order-filter__label {

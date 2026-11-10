@@ -49,7 +49,7 @@
     [nzPageSizeOptions]="pageSizeOptions"
     [nzShowSizeChanger]="true"
     [nzShowTotal]="totalTemplate"
-    [nzScroll]="{ x: '1340px' }"
+    [nzScroll]="{ x: '1250px' }"
     (nzPageIndexChange)="onPageIndexChange($event)"
     (nzPageSizeChange)="onPageSizeChange($event)"
     (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
@@ -152,7 +152,7 @@
           </nz-filter-trigger>
         </th>
 
-        <th nzWidth="120px">Действия</th>
+        <th nzWidth="72px" class="orders-table__actions-head">Действия</th>
       </tr>
     </thead>
 
@@ -200,51 +200,49 @@
             {{ order.totalAmountKopecks | bfMoneyRub }}
           </td>
 
-          <td>
-            <div class="orders-table__actions">
-              <button
-                nz-button
-                nzType="text"
-                nzShape="circle"
-                type="button"
-                nz-tooltip
-                nzTooltipTitle="Редактировать"
-                [attr.aria-label]="'Редактировать заказ ' + order.number"
-                (click)="editOrder(order)"
-              >
-                <nz-icon nzType="edit" />
-              </button>
+          <td class="orders-table__actions-cell">
+            <button
+              type="button"
+              nz-button
+              nzType="text"
+              nzShape="circle"
+              nz-dropdown
+              [nzDropdownMenu]="rowActionsMenu"
+              nzTrigger="click"
+              nzPlacement="bottomRight"
+              [attr.aria-haspopup]="'menu'"
+              [attr.aria-expanded]="openRowMenu() === order.id"
+              [attr.aria-label]="'Действия с заказом ' + order.number"
+              nz-tooltip
+              nzTooltipTitle="Действия"
+              nzTooltipPlacement="top"
+              (nzVisibleChange)="openRowMenu.set($event ? order.id : null)"
+            >
+              <nz-icon nzType="more" />
+            </button>
 
-              <button
-                nz-button
-                nzType="text"
-                nzShape="circle"
-                type="button"
-                nz-tooltip
-                nzTooltipTitle="Экспортировать"
-                [attr.aria-label]="'Экспортировать заказ ' + order.number"
-                (click)="exportOrder(order)"
-              >
-                <nz-icon nzType="download" />
-              </button>
-
-              <button
-                nz-button
-                nzType="text"
-                nzShape="circle"
-                nzDanger
-                type="button"
-                nz-popconfirm
-                [nzPopconfirmTitle]="'Удалить заказ ' + order.number + '?'"
-                nzOkText="Удалить"
-                nzCancelText="Отмена"
-                nzOkDanger
-                [attr.aria-label]="'Удалить заказ ' + order.number"
-                (nzOnConfirm)="deleteOrder(order)"
-              >
-                <nz-icon nzType="delete" />
-              </button>
-            </div>
+            <nz-dropdown-menu #rowActionsMenu="nzDropdownMenu">
+              <ul nz-menu class="orders-actions-menu">
+                <li nz-menu-item nzDisabled class="orders-actions-menu__title">Действия</li>
+                <!-- nz-menu-item is focusable and handles Enter/Space itself -->
+                <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+                <li nz-menu-item (click)="editOrder(order)">
+                  <nz-icon nzType="edit" />
+                  Редактировать
+                </li>
+                <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+                <li nz-menu-item (click)="exportOrder(order)">
+                  <nz-icon nzType="download" />
+                  Экспортировать
+                </li>
+                <li nz-menu-divider></li>
+                <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+                <li nz-menu-item nzDanger (click)="confirmDelete(order)">
+                  <nz-icon nzType="delete" />
+                  Удалить
+                </li>
+              </ul>
+            </nz-dropdown-menu>
           </td>
         </tr>
       }

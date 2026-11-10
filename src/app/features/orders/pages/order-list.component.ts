@@ -8,9 +8,9 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzDropdownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
@@ -70,7 +70,7 @@ const STATUS_ORDER: readonly OrderStatus[] = [
     NzDropdownModule,
     NzIconModule,
     NzInputModule,
-    NzPopconfirmModule,
+    NzMenuModule,
     NzTableModule,
     NzTagModule,
     NzTooltipModule,
@@ -116,6 +116,7 @@ export class OrderListComponent {
 
   /** Ключ открытого попапа фильтра — нужен, чтобы «Применить» закрывал его. */
   readonly openFilter = signal<OrderFilterKey | null>(null);
+  readonly openRowMenu = signal<string | null>(null);
 
   readonly selectedIds = signal<ReadonlySet<string>>(new Set<string>());
   readonly pageIndex = signal(1);
@@ -412,6 +413,17 @@ export class OrderListComponent {
 
   deleteOrder(order: Order): void {
     this.deleteOrders(new Set([order.id]));
+  }
+
+  confirmDelete(order: Order): void {
+    this.modal.confirm({
+      nzTitle: 'Удалить заказ?',
+      nzContent: `Заказ ${order.number} будет удалён. Это действие нельзя отменить.`,
+      nzOkText: 'Удалить',
+      nzOkDanger: true,
+      nzCancelText: 'Отмена',
+      nzOnOk: () => this.deleteOrder(order),
+    });
   }
 
   deleteSelected(): void {
